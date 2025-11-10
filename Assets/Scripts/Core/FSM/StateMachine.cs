@@ -1,5 +1,4 @@
-﻿
-namespace Core.FSM
+﻿namespace Core.FSM
 {
     public sealed class StateMachine
     {
