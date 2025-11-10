@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-
 public class ScriptScanner : MonoBehaviour
 {
     [MenuItem("Tools/Scan Scripts to Text File")]

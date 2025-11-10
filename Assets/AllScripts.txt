@@ -1,0 +1,208 @@
+========== FILE: EventBus.cs ==========
+using System;
+using System.Collections.Generic;
+
+namespace Core.EventBus
+{
+    public static class EventBus
+    {
+        private static readonly Dictionary<Type, List<Delegate>> _subscribers = new();
+
+        public static void Subscribe<T>(Action<T> callback)
+        {
+            var type = typeof(T);
+            if (!_subscribers.ContainsKey(type))
+                _subscribers[type] = new List<Delegate>();
+
+            _subscribers[type].Add(callback);
+        }
+
+        public static void Unsubscribe<T>(Action<T> callback)
+        {
+            var type = typeof(T);
+            if (_subscribers.TryGetValue(type, out var list))
+            {
+                list.Remove(callback);
+                if (list.Count == 0)
+                    _subscribers.Remove(type);
+            }
+        }
+
+        public static void Invoke<T>(T eventData)
+        {
+            var type = typeof(T);
+            if (_subscribers.TryGetValue(type, out var list))
+            {
+                foreach (var callback in list)
+                    (callback as Action<T>)?.Invoke(eventData);
+            }
+        }
+    }
+}
+
+========== FILE: IState.cs ==========
+namespace Core.FSM
+{
+    public interface IState
+    {
+        void Enter();
+        void Exit();
+        void Update();
+    }
+}
+
+
+========== FILE: StateMachine.cs ==========
+namespace Core.FSM
+{
+    public sealed class StateMachine
+    {
+        private IState _current;
+        public IState Current => _current;
+
+        public void Change(IState next)
+        {
+            if (_current == next) return;
+            _current?.Exit();
+            _current = next;
+            _current?.Enter();
+        }
+
+        public void Update() => _current?.Update();
+    }
+}
+
+========== FILE: Bootstrap.cs ==========
+using UnityEngine;
+
+namespace Core.SceneManagement
+{
+    public static class Bootstrap
+    {
+        private const string LoadingScreenResPath = "UI/LoadingScreen"; 
+        private const string MainMenuScene = "MainMenuScene";
+        private const float  FirstShowDelay = 2.0f; 
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Init()
+        {
+            if (LoadingScreen.Instance == null)
+            {
+                var prefab = Resources.Load<LoadingScreen>(LoadingScreenResPath);
+                if (prefab != null) Object.Instantiate(prefab);
+                else Debug.LogError("[Bootstrap] Missing Resources/UI/LoadingScreen.prefab with LoadingScreen component.");
+            }
+            LoadingScreen.Instance?.LoadScene(MainMenuScene, FirstShowDelay);
+        }
+    }
+}
+
+========== FILE: LoadingScreen.cs ==========
+using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+namespace Core.SceneManagement
+{
+    [DefaultExecutionOrder(-100)]
+    public sealed class LoadingScreen : MonoBehaviour
+    {
+        public static LoadingScreen Instance { get; private set; }
+
+        [Header("UI")]
+        [SerializeField] private GameObject root;     // контейнер екрана завантаження
+        [SerializeField] private Slider progressBar;  // слайдер прогресу (0..1)
+
+        [Header("Config")]
+        [SerializeField, Tooltip("Штучна затримка у секундах від 75% до 100%.")]
+        private float fakeFinishTime = 1.0f;
+
+        [SerializeField, Tooltip("Швидкість згладжування заповнення.")]
+        private float smoothSpeed = 6f;
+
+        private Coroutine _routine;
+
+        private void Awake()
+        {
+            // Singleton
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            if (root) root.SetActive(false);
+            if (progressBar) progressBar.value = 0f;
+        }
+
+        /// <summary>
+        /// Публічний API для завантаження сцени з екраном завантаження.
+        /// </summary>
+        public void LoadScene(string sceneName, float? fakeDelayOverride = null)
+        {
+            if (string.IsNullOrWhiteSpace(sceneName))
+            {
+                Debug.LogError("[LoadingScreen] Scene name is null or empty.");
+                return;
+            }
+
+            if (_routine != null) StopCoroutine(_routine);
+
+            root?.SetActive(true);
+            if (progressBar) progressBar.value = 0f;
+
+            _routine = StartCoroutine(LoadSceneRoutine(sceneName, fakeDelayOverride ?? fakeFinishTime));
+        }
+
+        private IEnumerator LoadSceneRoutine(string sceneName, float fakeDelay)
+        {
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+
+            var async = SceneManager.LoadSceneAsync(sceneName);
+            async.allowSceneActivation = false;
+
+            float shown = 0f;
+            const float realPhaseMax = 0.75f;  // до 75% — реальний прогрес
+            const float unityCap = 0.9f;       // Unity звітує 0.9 до активації
+
+            // --- ФАЗА 1: реальний прогрес (0–75%) ---
+            while (async.progress < unityCap)
+            {
+                float normalized = Mathf.Clamp01(async.progress / unityCap); // 0..1
+                float target = normalized * realPhaseMax;                    // 0..0.75
+                shown = Mathf.MoveTowards(shown, target, Time.unscaledDeltaTime * smoothSpeed);
+                if (progressBar) progressBar.value = shown;
+                yield return null;
+            }
+
+            // --- ФАЗА 2: штучна затримка 75–100% ---
+            float timer = 0f;
+            while (timer < fakeDelay)
+            {
+                timer += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(timer / fakeDelay);
+                float target = Mathf.Lerp(realPhaseMax, 1f, t); // 0.75 → 1.0 за fakeDelay
+                shown = Mathf.MoveTowards(shown, target, Time.unscaledDeltaTime * smoothSpeed);
+                if (progressBar) progressBar.value = shown;
+                yield return null;
+            }
+
+            // гарантувати 100%
+            if (progressBar) progressBar.value = 1f;
+            yield return null;
+
+            // --- Активуємо сцену ---
+            async.allowSceneActivation = true;
+            while (!async.isDone) yield return null;
+
+            if (root) root.SetActive(false);
+        }
+    }
+}
+
+
