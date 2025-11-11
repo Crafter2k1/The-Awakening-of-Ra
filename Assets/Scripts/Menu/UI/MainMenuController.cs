@@ -1,11 +1,11 @@
-﻿using UnityEngine;
-using Core.EventBus;
+﻿using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.SceneManagement;    // ✨ додали
 using Core.SceneManagement;
 using Menu.UI.Popups;
 
 namespace Menu.UI
 {
-
     public sealed class MainMenuController : MonoBehaviour
     {
         [Header("Popups")]
@@ -21,6 +21,14 @@ namespace Menu.UI
         private Panel _current = Panel.None;
         private bool _transitioning;
 
+        private void Start()
+        {
+            // ✨ нове: якщо сцену меню запустили напряму з редактора (без LoadingScreen),
+            // подія SceneReady не прийде — відкриваємо головне меню локально.
+            if (SceneManager.GetActiveScene().name == SceneFlow.Menu)
+                ShowMain();
+        }
+
         private void OnEnable()
         {
             // Відкриття екранів
@@ -34,7 +42,7 @@ namespace Menu.UI
             EventBus.Subscribe<MenuEvents.StartGameRequested>(OnStartGame);
             EventBus.Subscribe<MenuEvents.LevelChosen>(OnLevelChosen);
 
-            // Коли меню-сцена готова — показати головне меню
+            // Коли меню-сцена готова (через LoadingScreen) — показати головне меню
             EventBus.Subscribe<SceneReady>(OnSceneReady);
         }
 
@@ -122,7 +130,5 @@ namespace Menu.UI
         }
     }
 
-    // ===== Події меню =====
-    // Поклади це в окремий файл MenuEvents.cs, якщо ще не створив.
-  
+    // Події меню тримаєш у окремому файлі MenuEvents.cs (як у тебе зараз).
 }

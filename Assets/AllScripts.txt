@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Core.EventBus
+namespace Core.EventBusSystem
 {
     public static class EventBus
     {
@@ -101,9 +101,12 @@ namespace Core.SceneManagement
 
 ========== FILE: LoadingScreen.cs ==========
 using System.Collections;
+using Core.EventBusSystem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+// ✨ додали
+using Core.SceneManagement;    // ✨ додали (для SceneLoadingStarted/Loaded/Ready)
 
 namespace Core.SceneManagement
 {
@@ -186,6 +189,9 @@ namespace Core.SceneManagement
             Canvas.ForceUpdateCanvases();
             yield return null;
 
+            // ✨ нове: кинули подію "почали завантаження сцени"
+            EventBus.Invoke(new SceneLoadingStarted(sceneName));
+
             var async = SceneManager.LoadSceneAsync(sceneName);
             async.allowSceneActivation = false;
 
@@ -225,6 +231,13 @@ namespace Core.SceneManagement
             async.allowSceneActivation = true;
             while (!async.isDone) yield return null;
 
+            // ✨ нове: повідомили, що сцена активована
+            EventBus.Invoke(new SceneLoaded(sceneName));
+            // ✨ нове: ще один кадр — даємо Awake/Start у новій сцені відпрацювати
+            yield return null;
+            // ✨ нове: тепер сцена гарантовано "готова" для UI/контролерів
+            EventBus.Invoke(new SceneReady(sceneName));
+
             // короткий буфер, щоб уникнути "блимання" на дуже швидких сценах
             yield return new WaitForSecondsRealtime(0.2f);
 
@@ -255,6 +268,382 @@ namespace Core.SceneManagement
 
         public static void GoToMenu(float? fake = null) => LoadingScreen.Instance?.LoadScene(Menu, fake);
         public static void GoToGame(float? fake = null) => LoadingScreen.Instance?.LoadScene(Game, fake);
+    }
+}
+
+========== FILE: MainMenuController.cs ==========
+using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.SceneManagement;    // ✨ додали
+using Core.SceneManagement;
+using Menu.UI.Popups;
+
+namespace Menu.UI
+{
+    public sealed class MainMenuController : MonoBehaviour
+    {
+        [Header("Popups")]
+        [SerializeField] private MainMenuPopup mainMenuPopup;
+        [SerializeField] private SettingsPopup settingsPopup;
+        [SerializeField] private LevelSelectionPopup levelSelectionPopup;
+
+        [Header("Config")]
+        [SerializeField, Tooltip("Штучна доводка 75→100% при переході в гру")]
+        private float startGameFakeFinish = 1.5f;
+
+        private enum Panel { None, Main, Settings, Levels }
+        private Panel _current = Panel.None;
+        private bool _transitioning;
+
+        private void Start()
+        {
+            // ✨ нове: якщо сцену меню запустили напряму з редактора (без LoadingScreen),
+            // подія SceneReady не прийде — відкриваємо головне меню локально.
+            if (SceneManager.GetActiveScene().name == SceneFlow.Menu)
+                ShowMain();
+        }
+
+        private void OnEnable()
+        {
+            // Відкриття екранів
+            EventBus.Subscribe<MenuEvents.OpenMainMenu>(OnOpenMain);
+            EventBus.Subscribe<MenuEvents.OpenSettings>(OnOpenSettings);
+            EventBus.Subscribe<MenuEvents.OpenLevelSelection>(OnOpenLevels);
+            EventBus.Subscribe<MenuEvents.BackRequested>(OnBack);
+
+            // Дії
+            EventBus.Subscribe<MenuEvents.QuitRequested>(OnQuit);
+            EventBus.Subscribe<MenuEvents.StartGameRequested>(OnStartGame);
+            EventBus.Subscribe<MenuEvents.LevelChosen>(OnLevelChosen);
+
+            // Коли меню-сцена готова (через LoadingScreen) — показати головне меню
+            EventBus.Subscribe<SceneReady>(OnSceneReady);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<MenuEvents.OpenMainMenu>(OnOpenMain);
+            EventBus.Unsubscribe<MenuEvents.OpenSettings>(OnOpenSettings);
+            EventBus.Unsubscribe<MenuEvents.OpenLevelSelection>(OnOpenLevels);
+            EventBus.Unsubscribe<MenuEvents.BackRequested>(OnBack);
+
+            EventBus.Unsubscribe<MenuEvents.QuitRequested>(OnQuit);
+            EventBus.Unsubscribe<MenuEvents.StartGameRequested>(OnStartGame);
+            EventBus.Unsubscribe<MenuEvents.LevelChosen>(OnLevelChosen);
+
+            EventBus.Unsubscribe<SceneReady>(OnSceneReady);
+        }
+
+        // ---------- Event handlers ----------
+        private void OnSceneReady(SceneReady e)
+        {
+            if (e.Name == SceneFlow.Menu)
+                ShowMain();
+        }
+
+        private void OnOpenMain(MenuEvents.OpenMainMenu _)=> ShowMain();
+        private void OnOpenSettings(MenuEvents.OpenSettings _)=> ShowSettings();
+        private void OnOpenLevels(MenuEvents.OpenLevelSelection _)=> ShowLevels();
+        private void OnBack(MenuEvents.BackRequested _)=> ShowMain();
+
+        private void OnQuit(MenuEvents.QuitRequested _)
+        {
+            Application.Quit();
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        }
+
+        private void OnStartGame(MenuEvents.StartGameRequested _)
+        {
+            SceneFlow.GoToGame(startGameFakeFinish);
+        }
+
+        private void OnLevelChosen(MenuEvents.LevelChosen e)
+        {
+            // TODO: зберегти e.LevelId у своєму GameData/Session, якщо потрібно
+            SceneFlow.GoToGame(startGameFakeFinish);
+        }
+
+        // ---------- UI switching ----------
+        private void HideAll()
+        {
+            if (mainMenuPopup) mainMenuPopup.HideView();
+            if (settingsPopup) settingsPopup.HideView();
+            if (levelSelectionPopup) levelSelectionPopup.HideView();
+        }
+
+        private void ShowMain()
+        {
+            if (_transitioning || _current == Panel.Main) return;
+            _transitioning = true;
+            HideAll();
+            mainMenuPopup?.ShowView();
+            _current = Panel.Main;
+            _transitioning = false;
+        }
+
+        private void ShowSettings()
+        {
+            if (_transitioning || _current == Panel.Settings) return;
+            _transitioning = true;
+            HideAll();
+            settingsPopup?.ShowView();
+            _current = Panel.Settings;
+            _transitioning = false;
+        }
+
+        private void ShowLevels()
+        {
+            if (_transitioning || _current == Panel.Levels) return;
+            _transitioning = true;
+            HideAll();
+            levelSelectionPopup?.ShowView();
+            _current = Panel.Levels;
+            _transitioning = false;
+        }
+    }
+
+    // Події меню тримаєш у окремому файлі MenuEvents.cs (як у тебе зараз).
+}
+
+
+========== FILE: MenuEvents.cs ==========
+namespace Menu.UI
+{
+    public class MenuEvents
+    {
+        public readonly struct OpenMainMenu { }
+        public readonly struct OpenSettings { }
+        public readonly struct OpenLevelSelection { }
+        public readonly struct BackRequested { }
+        public readonly struct QuitRequested { }
+        public readonly struct StartGameRequested { }
+        public readonly struct LevelChosen
+        {
+            public readonly string LevelId;
+            public LevelChosen(string levelId) => LevelId = levelId;
+        }
+    }
+}
+
+========== FILE: BasePopup.cs ==========
+using DG.Tweening;
+using UnityEngine;
+
+namespace Menu.UI.Popups
+{
+    public class BasePopup : MonoBehaviour
+    {
+        [SerializeField] protected Transform content;
+        [SerializeField] protected CanvasGroup canvasGroup;
+        [SerializeField] private float animationDuration = 0.5f;
+
+        private Tween _fadeTween;
+
+        protected virtual void Awake() => Initial();
+
+        protected virtual void OnDisable()
+        {
+            if (_fadeTween != null && _fadeTween.IsActive())
+                _fadeTween.Kill();
+        }
+
+        protected virtual void Initial()
+        {
+            if (canvasGroup)
+            {
+                canvasGroup.alpha = 0f;
+                canvasGroup.interactable = false;
+                canvasGroup.blocksRaycasts = false;
+            }
+            if (content) content.gameObject.SetActive(false);
+        }
+
+        public virtual void ShowView()
+        {
+            if (_fadeTween != null && _fadeTween.IsActive())
+                _fadeTween.Kill();
+
+            if (content) content.gameObject.SetActive(true);
+
+            if (canvasGroup)
+            {
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+
+                _fadeTween = canvasGroup.DOFade(1f, animationDuration)
+                    .SetEase(Ease.OutQuad)
+                    .SetUpdate(true)
+                    .OnComplete(() => canvasGroup.alpha = 1f);
+            }
+        }
+
+        public virtual void HideView()
+        {
+            if (_fadeTween != null && _fadeTween.IsActive())
+                _fadeTween.Kill();
+
+            if (canvasGroup)
+            {
+                _fadeTween = canvasGroup.DOFade(0f, animationDuration)
+                    .SetEase(Ease.InQuad)
+                    .SetUpdate(true)
+                    .OnComplete(() =>
+                    {
+                        if (content) content.gameObject.SetActive(false);
+                        canvasGroup.interactable = false;
+                        canvasGroup.blocksRaycasts = false;
+                    });
+            }
+            else
+            {
+                if (content) content.gameObject.SetActive(false);
+            }
+        }
+    }
+}
+
+
+========== FILE: LevelSelectionPopup.cs ==========
+using System;
+using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.UI;
+// LevelChosen, BackRequested
+
+namespace Menu.UI.Popups
+{
+    public sealed class LevelSelectionPopup : BasePopup
+    {
+        [Serializable]
+        private struct LevelEntry
+        {
+            public Button button;   // кнопка рівня
+            public string levelId;  // або sceneName (як тобі зручніше)
+        }
+
+        [Header("Buttons")]
+        [SerializeField] private LevelEntry[] levels;
+        [SerializeField] private Button backButton;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (levels != null)
+            {
+                for (int i = 0; i < levels.Length; i++)
+                {
+                    var entry = levels[i]; // копія для коректного замикання
+                    if (entry.button)
+                        entry.button.onClick.AddListener(() => OnLevelClicked(entry.levelId));
+                }
+            }
+
+            if (backButton) backButton.onClick.AddListener(OnBackClicked);
+        }
+
+        private void OnDestroy()
+        {
+            if (levels != null)
+            {
+                for (int i = 0; i < levels.Length; i++)
+                {
+                    var entry = levels[i];
+                    if (entry.button)
+                        entry.button.onClick.RemoveAllListeners(); // або зберігати делегати і знімати точково
+                }
+            }
+
+            if (backButton) backButton.onClick.RemoveListener(OnBackClicked);
+        }
+
+        private void OnLevelClicked(string levelId)
+        {
+            EventBus.Invoke(new MenuEvents.LevelChosen(levelId));
+            // або, якщо стартуєш без збереження id:
+            // EventBus.Invoke(new StartGameRequested());
+        }
+
+        private void OnBackClicked() => EventBus.Invoke(new MenuEvents.BackRequested());
+    }
+}
+
+========== FILE: MainMenuPopup.cs ==========
+using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.UI;
+// OpenSettings, OpenLevelSelection, QuitRequested, StartGameRequested (якщо треба)
+
+namespace Menu.UI.Popups
+{
+    public sealed class MainMenuPopup : BasePopup
+    {
+        [Header("Buttons")]
+        [SerializeField] private Button settingsButton;
+        [SerializeField] private Button levelSelectButton;
+
+
+        [SerializeField] private Button quitButton;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (settingsButton)     settingsButton.onClick.AddListener(OnSettingsClicked);
+            if (levelSelectButton)  levelSelectButton.onClick.AddListener(OnLevelSelectClicked);
+            if (quitButton)         quitButton.onClick.AddListener(OnQuitClicked);
+        }
+
+        private void OnDestroy()
+        {
+            if (settingsButton)     settingsButton.onClick.RemoveListener(OnSettingsClicked);
+            if (levelSelectButton)  levelSelectButton.onClick.RemoveListener(OnLevelSelectClicked);
+            if (quitButton)         quitButton.onClick.RemoveListener(OnQuitClicked);
+        }
+
+        private void OnSettingsClicked()    => EventBus.Invoke(new MenuEvents.OpenSettings());
+        private void OnLevelSelectClicked() => EventBus.Invoke(new MenuEvents.OpenLevelSelection());
+        private void OnQuitClicked()        => EventBus.Invoke(new MenuEvents.QuitRequested());
+    }
+}
+
+========== FILE: SettingsPopup.cs ==========
+using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.UI;
+
+
+namespace Menu.UI.Popups
+{
+    public sealed class SettingsPopup : BasePopup
+    {
+        [Header("Buttons")]
+        [SerializeField] private Button backButton;
+
+        // приклад додаткових контролів (опційно):
+        // [SerializeField] private Slider musicVolume;
+        // [SerializeField] private Toggle vsyncToggle;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            if (backButton) backButton.onClick.AddListener(OnBackClicked);
+
+            // приклад прив’язки своїх подій:
+            // if (musicVolume) musicVolume.onValueChanged.AddListener(v => EventBus.Invoke(new MusicVolumeChanged(v)));
+            // if (vsyncToggle) vsyncToggle.onValueChanged.AddListener(on => EventBus.Invoke(new VSyncToggled(on)));
+        }
+
+        private void OnDestroy()
+        {
+            if (backButton) backButton.onClick.RemoveListener(OnBackClicked);
+            // if (musicVolume) musicVolume.onValueChanged.RemoveAllListeners();
+            // if (vsyncToggle) vsyncToggle.onValueChanged.RemoveAllListeners();
+        }
+
+        private void OnBackClicked() => EventBus.Invoke(new MenuEvents.BackRequested());
     }
 }
 

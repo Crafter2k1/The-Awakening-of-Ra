@@ -11,7 +11,17 @@ namespace Menu.UI.Popups
 
         private Tween _fadeTween;
 
-        protected virtual void Awake() => Initial();
+        // ВАЖЛИВО: НІЯКОГО Initial() В AWAKE!
+        // Стан початкової видимості задаєш у префабі/сцені.
+        protected virtual void Awake()
+        {
+            Debug.Log($"[Popup] Awake {name} (content.activeSelf={content?.gameObject.activeSelf}, alpha={canvasGroup?.alpha})", this);
+
+            if (!canvasGroup)
+                Debug.LogWarning($"[Popup] {name} CanvasGroup НЕ заданий", this);
+            if (!content)
+                Debug.LogWarning($"[Popup] {name} Content НЕ заданий", this);
+        }
 
         protected virtual void OnDisable()
         {
@@ -19,19 +29,10 @@ namespace Menu.UI.Popups
                 _fadeTween.Kill();
         }
 
-        protected virtual void Initial()
-        {
-            if (canvasGroup)
-            {
-                canvasGroup.alpha = 0f;
-                canvasGroup.interactable = false;
-                canvasGroup.blocksRaycasts = false;
-            }
-            if (content) content.gameObject.SetActive(false);
-        }
-
         public virtual void ShowView()
         {
+            Debug.Log($"[Popup] ShowView {name}", this);
+
             if (_fadeTween != null && _fadeTween.IsActive())
                 _fadeTween.Kill();
 
@@ -42,6 +43,7 @@ namespace Menu.UI.Popups
                 canvasGroup.interactable = true;
                 canvasGroup.blocksRaycasts = true;
 
+                // миттєво піднімаємо alpha до 1, або хочеш — залиш tween
                 _fadeTween = canvasGroup.DOFade(1f, animationDuration)
                     .SetEase(Ease.OutQuad)
                     .SetUpdate(true)
@@ -51,6 +53,8 @@ namespace Menu.UI.Popups
 
         public virtual void HideView()
         {
+            Debug.Log($"[Popup] HideView {name}", this);
+
             if (_fadeTween != null && _fadeTween.IsActive())
                 _fadeTween.Kill();
 

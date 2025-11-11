@@ -1,7 +1,10 @@
 ﻿using System.Collections;
+using Core.EventBusSystem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+// ✨ додали
+using Core.SceneManagement;    // ✨ додали (для SceneLoadingStarted/Loaded/Ready)
 
 namespace Core.SceneManagement
 {
@@ -84,6 +87,9 @@ namespace Core.SceneManagement
             Canvas.ForceUpdateCanvases();
             yield return null;
 
+            // ✨ нове: кинули подію "почали завантаження сцени"
+            EventBus.Invoke(new SceneLoadingStarted(sceneName));
+
             var async = SceneManager.LoadSceneAsync(sceneName);
             async.allowSceneActivation = false;
 
@@ -122,6 +128,13 @@ namespace Core.SceneManagement
             // --- Активуємо сцену ---
             async.allowSceneActivation = true;
             while (!async.isDone) yield return null;
+
+            // ✨ нове: повідомили, що сцена активована
+            EventBus.Invoke(new SceneLoaded(sceneName));
+            // ✨ нове: ще один кадр — даємо Awake/Start у новій сцені відпрацювати
+            yield return null;
+            // ✨ нове: тепер сцена гарантовано "готова" для UI/контролерів
+            EventBus.Invoke(new SceneReady(sceneName));
 
             // короткий буфер, щоб уникнути "блимання" на дуже швидких сценах
             yield return new WaitForSecondsRealtime(0.2f);
