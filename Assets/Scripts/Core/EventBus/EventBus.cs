@@ -32,9 +32,11 @@ namespace Core.EventBus
             var type = typeof(T);
             if (_subscribers.TryGetValue(type, out var list))
             {
-                foreach (var callback in list)
-                    (callback as Action<T>)?.Invoke(eventData);
+                var snapshot = list.ToArray(); 
+                for (int i = 0; i < snapshot.Length; i++)
+                    (snapshot[i] as Action<T>)?.Invoke(eventData);
             }
         }
+
     }
 }

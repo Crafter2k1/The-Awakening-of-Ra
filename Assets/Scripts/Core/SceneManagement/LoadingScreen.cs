@@ -11,16 +11,19 @@ namespace Core.SceneManagement
         public static LoadingScreen Instance { get; private set; }
 
         [Header("UI")]
-        [SerializeField] private GameObject root;   
-        [SerializeField] private Slider progressBar;  
+        [SerializeField] private GameObject root;     // контейнер екрана завантаження
+        [SerializeField] private Slider progressBar;  // індикатор прогресу (0..1)
 
         [Header("Config (Inspector)")]
-        [SerializeField, Tooltip("Fill smoothing speed")]
+        [SerializeField, Tooltip("Швидкість згладжування заповнення (візуально).")]
         private float smoothSpeed = 6f;
-        
+
+        // Значення за замовчуванням (якщо Bootstrap не передасть оверрайд)
         private const float DefaultFakeFinishTime = 1.0f;
 
         private Coroutine _routine;
+        private bool _isLoading;
+        private string _targetScene;
 
         private void Awake()
         {
@@ -31,7 +34,11 @@ namespace Core.SceneManagement
             if (root) root.SetActive(false);
             if (progressBar) progressBar.value = 0f;
         }
-        
+
+        /// <summary>
+        /// Завантажує сцену з екраном завантаження.
+        /// fakeDelayOverride — тривалість штучної фази 75% → 100% (сек), зазвичай задається Bootstrap-ом.
+        /// </summary>
         public void LoadScene(string sceneName, float? fakeDelayOverride = null)
         {
             if (string.IsNullOrWhiteSpace(sceneName))
@@ -40,7 +47,29 @@ namespace Core.SceneManagement
                 return;
             }
 
+            // якщо намагаємось завантажити активну сцену — нічого не робимо
+            if (SceneManager.GetActiveScene().name == sceneName)
+            {
+                Debug.LogWarning($"[LoadingScreen] Scene '{sceneName}' is already active.");
+                root?.SetActive(false);
+                return;
+            }
+
+            // перевірка на наявність у Build Settings
+            if (!Application.CanStreamedLevelBeLoaded(sceneName))
+            {
+                Debug.LogError($"[LoadingScreen] Scene '{sceneName}' is not in Build Settings.");
+                return;
+            }
+
+            // захист від повторних викликів одного й того ж лоаду
+            if (_isLoading && _targetScene == sceneName)
+                return;
+
             if (_routine != null) StopCoroutine(_routine);
+
+            _isLoading = true;
+            _targetScene = sceneName;
 
             root?.SetActive(true);
             if (progressBar) progressBar.value = 0f;
@@ -51,6 +80,7 @@ namespace Core.SceneManagement
 
         private IEnumerator LoadSceneRoutine(string sceneName, float fakeDelay)
         {
+            // дати Canvas відмалюватися перед стартом важкого лоаду
             Canvas.ForceUpdateCanvases();
             yield return null;
 
@@ -58,36 +88,48 @@ namespace Core.SceneManagement
             async.allowSceneActivation = false;
 
             float shown = 0f;
-            const float realPhaseMax = 0.75f;  
-            const float unityCap = 0.9f;      
-            
+            const float realPhaseMax = 0.75f; // до 75% — реальний прогрес
+            const float unityCap     = 0.9f;  // Unity звітує 0.9 до активації
+
+            // --- ФАЗА 1: реальний прогрес (0–75%) ---
             while (async.progress < unityCap)
             {
-                float normalized = Mathf.Clamp01(async.progress / unityCap); 
-                float target = normalized * realPhaseMax;                 
+                float normalized = Mathf.Clamp01(async.progress / unityCap); // 0..1
+                float target = normalized * realPhaseMax;                    // 0..0.75
                 shown = Mathf.MoveTowards(shown, target, Time.unscaledDeltaTime * smoothSpeed);
+
                 if (progressBar) progressBar.value = shown;
                 yield return null;
             }
-            
+
+            // --- ФАЗА 2: штучна затримка 75–100% ---
             float timer = 0f;
             while (timer < fakeDelay)
             {
                 timer += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(timer / fakeDelay);
-                float target = Mathf.Lerp(realPhaseMax, 1f, t); 
+                float target = Mathf.Lerp(realPhaseMax, 1f, t); // 0.75 → 1.0 за fakeDelay
                 shown = Mathf.MoveTowards(shown, target, Time.unscaledDeltaTime * smoothSpeed);
+
                 if (progressBar) progressBar.value = shown;
                 yield return null;
             }
 
+            // гарантувати 100% і дати один кадр завершення
             if (progressBar) progressBar.value = 1f;
             yield return null;
 
+            // --- Активуємо сцену ---
             async.allowSceneActivation = true;
             while (!async.isDone) yield return null;
 
+            // короткий буфер, щоб уникнути "блимання" на дуже швидких сценах
+            yield return new WaitForSecondsRealtime(0.2f);
+
             if (root) root.SetActive(false);
+            _isLoading = false;
+            _targetScene = null;
+            _routine = null;
         }
     }
 }
