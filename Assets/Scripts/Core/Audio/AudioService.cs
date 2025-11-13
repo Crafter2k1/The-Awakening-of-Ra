@@ -1,4 +1,5 @@
-﻿using Core.EventBusSystem;
+﻿// Assets/Scripts/Core/Audio/AudioService.cs
+using Core.EventBusSystem;
 using Core.Settings;
 using Core.SceneManagement;
 using UnityEngine;
@@ -20,30 +21,30 @@ namespace Core.Audio
         [SerializeField] private float onDb  = 0f;
         [SerializeField] private float offDb = -80f;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void Bootstrap()
-        {
-            if (Instance != null) return;
-            var go = new GameObject("[AudioService]");
-            DontDestroyOnLoad(go);
-            Instance = go.AddComponent<AudioService>();
-        }
+        // ❌ повністю видалено RuntimeInitializeOnLoadMethod + самостворення!
 
         private void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // fallback: якщо міксер не підв’язаний у префабі — спробуємо дістати з Resources
+            if (!masterMixer)
+                masterMixer = Resources.Load<AudioMixer>("Audio/MasterMixer");
+
+            if (!masterMixer)
+                Debug.LogError("[AudioService] No AudioMixer assigned/found. Assign in prefab or put at Resources/Audio/MasterMixer.mixer");
         }
 
         private void OnEnable()
         {
-            // Стан налаштувань
             EventBus.Subscribe<SettingsLoaded>(OnSettingsLoaded);
             EventBus.Subscribe<SettingsChanged>(OnSettingsChanged);
-
-            // Після кожної сцени просимо сервіс скинути поточний стан (для нових AudioSource)
             EventBus.Subscribe<SceneReady>(OnSceneReady);
+
+            // одразу синхронізуємо стан (раптом пропустили ранні події)
+            EventBus.Invoke(new SettingsSyncRequested());
         }
 
         private void OnDisable()
@@ -58,7 +59,6 @@ namespace Core.Audio
 
         private void OnSceneReady(SceneReady _)
         {
-            // Запитуємо повторну синхронізацію стану, щоб застосувати його у щойно активованій сцені
             EventBus.Invoke(new SettingsSyncRequested());
         }
 

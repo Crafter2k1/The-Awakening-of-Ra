@@ -35,7 +35,7 @@ namespace Menu.UI.Popups
             EventBus.Invoke(new SettingsSyncRequested());
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
             EventBus.Unsubscribe<SettingsLoaded>(OnSettings);
             EventBus.Unsubscribe<SettingsChanged>(OnSettings);
