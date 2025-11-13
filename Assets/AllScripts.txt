@@ -1,3 +1,82 @@
+========== FILE: AudioService.cs ==========
+using Core.EventBusSystem;
+using Core.Settings;
+using Core.SceneManagement;
+using UnityEngine;
+using UnityEngine.Audio;
+
+namespace Core.Audio
+{
+    [DefaultExecutionOrder(-120)]
+    public sealed class AudioService : MonoBehaviour
+    {
+        public static AudioService Instance { get; private set; }
+
+        [Header("Mixer")]
+        [SerializeField] private AudioMixer masterMixer;
+        [SerializeField] private string musicParam = "MusicVolume";
+        [SerializeField] private string sfxParam   = "SFXVolume";
+
+        [Header("Volumes (dB)")]
+        [SerializeField] private float onDb  = 0f;
+        [SerializeField] private float offDb = -80f;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Bootstrap()
+        {
+            if (Instance != null) return;
+            var go = new GameObject("[AudioService]");
+            DontDestroyOnLoad(go);
+            Instance = go.AddComponent<AudioService>();
+        }
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+
+        private void OnEnable()
+        {
+            // Стан налаштувань
+            EventBus.Subscribe<SettingsLoaded>(OnSettingsLoaded);
+            EventBus.Subscribe<SettingsChanged>(OnSettingsChanged);
+
+            // Після кожної сцени просимо сервіс скинути поточний стан (для нових AudioSource)
+            EventBus.Subscribe<SceneReady>(OnSceneReady);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<SettingsLoaded>(OnSettingsLoaded);
+            EventBus.Unsubscribe<SettingsChanged>(OnSettingsChanged);
+            EventBus.Unsubscribe<SceneReady>(OnSceneReady);
+        }
+
+        private void OnSettingsLoaded(SettingsLoaded e)  => Apply(e.MusicOn, e.SfxOn);
+        private void OnSettingsChanged(SettingsChanged e) => Apply(e.MusicOn, e.SfxOn);
+
+        private void OnSceneReady(SceneReady _)
+        {
+            // Запитуємо повторну синхронізацію стану, щоб застосувати його у щойно активованій сцені
+            EventBus.Invoke(new SettingsSyncRequested());
+        }
+
+        private void Apply(bool musicOn, bool sfxOn)
+        {
+            if (!masterMixer)
+            {
+                Debug.LogWarning("[AudioService] No AudioMixer assigned.");
+                return;
+            }
+            masterMixer.SetFloat(musicParam, musicOn ? onDb : offDb);
+            masterMixer.SetFloat(sfxParam,   sfxOn   ? onDb : offDb);
+        }
+    }
+}
+
+
 ========== FILE: EventBus.cs ==========
 using System;
 using System.Collections.Generic;
@@ -271,6 +350,120 @@ namespace Core.SceneManagement
     }
 }
 
+========== FILE: SettingsEvents.cs ==========
+namespace Core.Settings
+{
+    public readonly struct SettingsLoaded
+    {
+        public readonly bool MusicOn;
+        public readonly bool SfxOn;
+        public SettingsLoaded(bool musicOn, bool sfxOn) { MusicOn = musicOn; SfxOn = sfxOn; }
+    }
+    
+    public readonly struct SettingsChanged
+    {
+        public readonly bool MusicOn;
+        public readonly bool SfxOn;
+        public SettingsChanged(bool musicOn, bool sfxOn) { MusicOn = musicOn; SfxOn = sfxOn; }
+    }
+    
+    public readonly struct MusicToggleRequested { public readonly bool IsOn; public MusicToggleRequested(bool isOn) { IsOn = isOn; } }
+    public readonly struct SfxToggleRequested   { public readonly bool IsOn; public SfxToggleRequested(bool isOn)   { IsOn = isOn; } }
+    
+    public readonly struct SettingsSyncRequested { }
+}
+
+========== FILE: SettingsService.cs ==========
+// Assets/Scripts/Core/Settings/SettingsService.cs
+using Core.EventBusSystem;
+using UnityEngine;
+
+namespace Core.Settings
+{
+    [DefaultExecutionOrder(-150)]
+    public sealed class SettingsService : MonoBehaviour
+    {
+        public static SettingsService Instance { get; private set; }
+
+        private const string KeyMusic = "settings.music_on";
+        private const string KeySfx   = "settings.sfx_on";
+        private const int    DefaultOn = 1;
+
+        private bool _musicOn = true;
+        private bool _sfxOn   = true;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Bootstrap()
+        {
+            // забезпечуємо існування сервісу до завантаження будь-якої сцени
+            if (Instance != null) return;
+            var go = new GameObject("[SettingsService]");
+            DontDestroyOnLoad(go);
+            Instance = go.AddComponent<SettingsService>();
+        }
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            Load();
+            // одразу розсилаємо стан, щоб інші підтягнулись
+            EventBus.Invoke(new SettingsLoaded(_musicOn, _sfxOn));
+            EventBus.Invoke(new SettingsChanged(_musicOn, _sfxOn));
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<MusicToggleRequested>(OnMusicToggleRequested);
+            EventBus.Subscribe<SfxToggleRequested>(OnSfxToggleRequested);
+            EventBus.Subscribe<SettingsSyncRequested>(OnSyncRequested);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<MusicToggleRequested>(OnMusicToggleRequested);
+            EventBus.Unsubscribe<SfxToggleRequested>(OnSfxToggleRequested);
+            EventBus.Unsubscribe<SettingsSyncRequested>(OnSyncRequested);
+        }
+
+        private void OnMusicToggleRequested(MusicToggleRequested e)
+        {
+            if (_musicOn == e.IsOn) return;
+            _musicOn = e.IsOn;
+            Save();
+            EventBus.Invoke(new SettingsChanged(_musicOn, _sfxOn));
+        }
+
+        private void OnSfxToggleRequested(SfxToggleRequested e)
+        {
+            if (_sfxOn == e.IsOn) return;
+            _sfxOn = e.IsOn;
+            Save();
+            EventBus.Invoke(new SettingsChanged(_musicOn, _sfxOn));
+        }
+
+        private void OnSyncRequested(SettingsSyncRequested _)
+        {
+            EventBus.Invoke(new SettingsChanged(_musicOn, _sfxOn));
+        }
+
+        private void Load()
+        {
+            _musicOn = PlayerPrefs.GetInt(KeyMusic, DefaultOn) != 0;
+            _sfxOn   = PlayerPrefs.GetInt(KeySfx,   DefaultOn) != 0;
+        }
+
+        private void Save()
+        {
+            PlayerPrefs.SetInt(KeyMusic, _musicOn ? 1 : 0);
+            PlayerPrefs.SetInt(KeySfx,   _sfxOn   ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+    }
+}
+
+
 ========== FILE: MainMenuController.cs ==========
 using Core.EventBusSystem;
 using UnityEngine;
@@ -441,7 +634,17 @@ namespace Menu.UI.Popups
 
         private Tween _fadeTween;
 
-        protected virtual void Awake() => Initial();
+        // ВАЖЛИВО: НІЯКОГО Initial() В AWAKE!
+        // Стан початкової видимості задаєш у префабі/сцені.
+        protected virtual void Awake()
+        {
+            Debug.Log($"[Popup] Awake {name} (content.activeSelf={content?.gameObject.activeSelf}, alpha={canvasGroup?.alpha})", this);
+
+            if (!canvasGroup)
+                Debug.LogWarning($"[Popup] {name} CanvasGroup НЕ заданий", this);
+            if (!content)
+                Debug.LogWarning($"[Popup] {name} Content НЕ заданий", this);
+        }
 
         protected virtual void OnDisable()
         {
@@ -449,19 +652,10 @@ namespace Menu.UI.Popups
                 _fadeTween.Kill();
         }
 
-        protected virtual void Initial()
-        {
-            if (canvasGroup)
-            {
-                canvasGroup.alpha = 0f;
-                canvasGroup.interactable = false;
-                canvasGroup.blocksRaycasts = false;
-            }
-            if (content) content.gameObject.SetActive(false);
-        }
-
         public virtual void ShowView()
         {
+            Debug.Log($"[Popup] ShowView {name}", this);
+
             if (_fadeTween != null && _fadeTween.IsActive())
                 _fadeTween.Kill();
 
@@ -472,6 +666,7 @@ namespace Menu.UI.Popups
                 canvasGroup.interactable = true;
                 canvasGroup.blocksRaycasts = true;
 
+                // миттєво піднімаємо alpha до 1, або хочеш — залиш tween
                 _fadeTween = canvasGroup.DOFade(1f, animationDuration)
                     .SetEase(Ease.OutQuad)
                     .SetUpdate(true)
@@ -481,6 +676,8 @@ namespace Menu.UI.Popups
 
         public virtual void HideView()
         {
+            Debug.Log($"[Popup] HideView {name}", this);
+
             if (_fadeTween != null && _fadeTween.IsActive())
                 _fadeTween.Kill();
 
@@ -610,10 +807,11 @@ namespace Menu.UI.Popups
 }
 
 ========== FILE: SettingsPopup.cs ==========
+// Assets/Scripts/Menu/UI/Popups/SettingsPopup.cs
 using Core.EventBusSystem;
+using Core.Settings;
 using UnityEngine;
 using UnityEngine.UI;
-
 
 namespace Menu.UI.Popups
 {
@@ -622,28 +820,68 @@ namespace Menu.UI.Popups
         [Header("Buttons")]
         [SerializeField] private Button backButton;
 
-        // приклад додаткових контролів (опційно):
-        // [SerializeField] private Slider musicVolume;
-        // [SerializeField] private Toggle vsyncToggle;
+        [Header("Toggles")]
+        [SerializeField] private Toggle musicToggle;
+        [SerializeField] private Toggle sfxToggle;
+
+        private bool _lockUi; 
 
         protected override void Awake()
         {
             base.Awake();
+
             if (backButton) backButton.onClick.AddListener(OnBackClicked);
 
-            // приклад прив’язки своїх подій:
-            // if (musicVolume) musicVolume.onValueChanged.AddListener(v => EventBus.Invoke(new MusicVolumeChanged(v)));
-            // if (vsyncToggle) vsyncToggle.onValueChanged.AddListener(on => EventBus.Invoke(new VSyncToggled(on)));
+            if (musicToggle) musicToggle.onValueChanged.AddListener(OnMusicToggle);
+            if (sfxToggle)   sfxToggle.onValueChanged.AddListener(OnSfxToggle);
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<SettingsLoaded>(OnSettings);
+            EventBus.Subscribe<SettingsChanged>(OnSettings);
+            
+            EventBus.Invoke(new SettingsSyncRequested());
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<SettingsLoaded>(OnSettings);
+            EventBus.Unsubscribe<SettingsChanged>(OnSettings);
         }
 
         private void OnDestroy()
         {
-            if (backButton) backButton.onClick.RemoveListener(OnBackClicked);
-            // if (musicVolume) musicVolume.onValueChanged.RemoveAllListeners();
-            // if (vsyncToggle) vsyncToggle.onValueChanged.RemoveAllListeners();
+            if (backButton)  backButton.onClick.RemoveListener(OnBackClicked);
+            if (musicToggle) musicToggle.onValueChanged.RemoveListener(OnMusicToggle);
+            if (sfxToggle)   sfxToggle.onValueChanged.RemoveListener(OnSfxToggle);
         }
 
-        private void OnBackClicked() => EventBus.Invoke(new MenuEvents.BackRequested());
+        private void OnBackClicked() => EventBus.Invoke(new Menu.UI.MenuEvents.BackRequested());
+
+        private void OnMusicToggle(bool isOn)
+        {
+            if (_lockUi) return;
+            EventBus.Invoke(new MusicToggleRequested(isOn));
+        }
+
+        private void OnSfxToggle(bool isOn)
+        {
+            if (_lockUi) return;
+            EventBus.Invoke(new SfxToggleRequested(isOn));
+        }
+
+        private void OnSettings(SettingsLoaded e)  => SyncUI(e.MusicOn, e.SfxOn);
+        private void OnSettings(SettingsChanged e) => SyncUI(e.MusicOn, e.SfxOn);
+
+        private void SyncUI(bool musicOn, bool sfxOn)
+        {
+            _lockUi = true;
+            if (musicToggle) musicToggle.SetIsOnWithoutNotify(musicOn);
+            if (sfxToggle)   sfxToggle.SetIsOnWithoutNotify(sfxOn);
+            _lockUi = false;
+        }
     }
 }
+
 
