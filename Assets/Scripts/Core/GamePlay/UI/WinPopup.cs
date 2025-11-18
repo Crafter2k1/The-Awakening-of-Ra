@@ -8,31 +8,38 @@ namespace Core.GamePlay.UI
 {
     public sealed class WinPopup : BasePopup
     {
-        [SerializeField] private Button restartButton;
+        [Header("Buttons")]
         [SerializeField] private Button nextLevelButton;
+        [SerializeField] private Button menuButton;
 
         protected override void Awake()
         {
             base.Awake();
 
-            if (restartButton)   restartButton.onClick.AddListener(OnRestartClicked);
-            if (nextLevelButton) nextLevelButton.onClick.AddListener(OnNextClicked);
+            if (nextLevelButton)
+                nextLevelButton.onClick.AddListener(OnNextClicked);
+
+            if (menuButton)
+                menuButton.onClick.AddListener(OnMenuClicked);
         }
 
         private void OnDestroy()
         {
-            if (restartButton)   restartButton.onClick.RemoveListener(OnRestartClicked);
-            if (nextLevelButton) nextLevelButton.onClick.RemoveListener(OnNextClicked);
-        }
+            if (nextLevelButton)
+                nextLevelButton.onClick.RemoveListener(OnNextClicked);
 
-        private void OnRestartClicked()
-        {
-            EventBus.Invoke(new GameEvents.RestartRequested());
+            if (menuButton)
+                menuButton.onClick.RemoveListener(OnMenuClicked);
         }
 
         private void OnNextClicked()
         {
             EventBus.Invoke(new GameEvents.NextLevelRequested());
+        }
+
+        private void OnMenuClicked()
+        {
+            EventBus.Invoke(new GameEvents.GoToMenuRequested());
         }
     }
 }
