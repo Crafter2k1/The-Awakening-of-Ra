@@ -8,6 +8,8 @@ namespace Core.GamePlay.UI
 {
     public sealed class PausePopup : BasePopup
     {
+        [Header("Buttons")]
+        [SerializeField] private Button resumeButton;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button menuButton;
 
@@ -15,14 +17,21 @@ namespace Core.GamePlay.UI
         {
             base.Awake();
 
+            if (resumeButton)  resumeButton.onClick.AddListener(OnResumeClicked);
             if (restartButton) restartButton.onClick.AddListener(OnRestartClicked);
             if (menuButton)    menuButton.onClick.AddListener(OnMenuClicked);
         }
 
         private void OnDestroy()
         {
+            if (resumeButton)  resumeButton.onClick.RemoveListener(OnResumeClicked);
             if (restartButton) restartButton.onClick.RemoveListener(OnRestartClicked);
             if (menuButton)    menuButton.onClick.RemoveListener(OnMenuClicked);
+        }
+
+        private void OnResumeClicked()
+        {
+            EventBus.Invoke(new GameEvents.ResumeRequested());
         }
 
         private void OnRestartClicked()

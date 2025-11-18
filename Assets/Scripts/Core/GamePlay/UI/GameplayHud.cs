@@ -2,7 +2,8 @@
 using Core.EventBusSystem;
 using UnityEngine;
 using UnityEngine.UI;
-using Menu.UI.Popups;  // BasePopup
+using Menu.UI.Popups;
+using TMPro; // BasePopup
 
 namespace Core.GamePlay.UI
 {
@@ -12,7 +13,7 @@ namespace Core.GamePlay.UI
         [SerializeField] private Button pauseButton;
 
         [Header("Texts")]
-        [SerializeField] private Text levelText; // або TMP_Text, якщо хочеш — тоді поміняй тип
+        [SerializeField] private TextMeshProUGUI levelText; // або TMP_Text, якщо хочеш — тоді поміняй тип
 
         protected override void Awake()
         {
