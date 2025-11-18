@@ -4,15 +4,16 @@ namespace Core.GamePlay.Symboll
 {
     public class SymbolNode : MonoBehaviour
     {
+        [Header("Visuals")]
         public SpriteRenderer sprite;
         public Color idleColor = Color.white;
         public Color activeColor = Color.yellow;
 
-        [Header("Highlight")]
+        [Header("Highlight Settings")]
         [SerializeField] private float highlightScaleMul = 1.1f;
 
-        bool _activated;
-        Vector3 _baseScale;
+        private bool _activated;
+        private Vector3 _baseScale;
 
         void Reset()
         {
@@ -21,15 +22,16 @@ namespace Core.GamePlay.Symboll
 
         void Awake()
         {
-            // запам'ятовуємо стартовий scale префаба
+            // базовий scale
             _baseScale = transform.localScale;
-        }
 
-        void Start()
-        {
+            // МОЖНА тут скинути стан один раз при створенні
             SetIdle();
             SetHighlighted(false);
         }
+
+        // ❌ Start прибираємо зовсім, або залишаємо пустим
+        // void Start() { }
 
         public void SetIdle()
         {

@@ -1,75 +1,78 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
-using Core.GamePlay.Levels;   // <<< важливо
 
 namespace Core.GamePlay
 {
+    /// <summary>
+    /// Відповідає за рух променя по послідовності точок під час ФАЗИ ПОКАЗУ.
+    /// У фазі вводу гравця промінь не використовується.
+    /// </summary>
     public class SunBeamController : MonoBehaviour
     {
-        float _moveSpeed;
-        float _stopDuration;
-        float _hitWindow;
-        float _reachDistance = 0.05f;
-
-        Transform[] _points;
-
-        public bool IsInStopWindow { get; private set; }
-        public int CurrentIndex { get; private set; } = -1;
+        [Tooltip("Наскільки близько до точки вважати, що променя вже \"дійшов\".")]
+        [SerializeField] private float reachDistance = 0.05f;
 
         Coroutine _routine;
 
-        // викликається з GameManager
-        public void Init(Transform[] points, LevelData levelData)   // <<< тут теж
+        /// <summary>
+        /// Запускає показ послідовності:
+        /// рухається по points, на кожній точці робить паузу stopDuration.
+        /// При кожному кроці викликає onStep(index), а після завершення — onFinished().
+        /// </summary>
+        public void PlaySequence(
+            Transform[] points,
+            float moveSpeed,
+            float stopDuration,
+            Action<int> onStep,
+            Action onFinished)
         {
-            _points = points;
-
-            if (_points == null || _points.Length == 0)
+            if (points == null || points.Length == 0)
             {
-                Debug.LogError("SunBeamController.Init: no points!");
+                Debug.LogError("SunBeamController.PlaySequence: no points!");
                 return;
             }
-
-            _moveSpeed    = levelData.moveSpeed;
-            _stopDuration = levelData.stopDuration;
-            _hitWindow    = levelData.hitWindow;
-
-            transform.position = _points[0].position;
-            IsInStopWindow = false;
-            CurrentIndex = -1;
 
             if (_routine != null)
                 StopCoroutine(_routine);
 
-            _routine = StartCoroutine(MoveRoutine());
+            _routine = StartCoroutine(PlayRoutine(points, moveSpeed, stopDuration, onStep, onFinished));
         }
 
-        IEnumerator MoveRoutine()
+        IEnumerator PlayRoutine(
+            Transform[] points,
+            float moveSpeed,
+            float stopDuration,
+            Action<int> onStep,
+            Action onFinished)
         {
-            for (int i = 0; i < _points.Length; i++)
-            {
-                Transform target = _points[i];
+            // стартуємо з позиції першої точки
+            transform.position = points[0].position;
 
-                while (Vector3.Distance(transform.position, target.position) > _reachDistance)
+            for (int i = 0; i < points.Length; i++)
+            {
+                Transform target = points[i];
+
+                // рух до точки
+                while (Vector3.Distance(transform.position, target.position) > reachDistance)
                 {
                     transform.position = Vector3.MoveTowards(
                         transform.position,
                         target.position,
-                        _moveSpeed * Time.deltaTime
+                        moveSpeed * Time.deltaTime
                     );
                     yield return null;
                 }
 
-                CurrentIndex = i;
+                // прийшли до i-го елемента послідовності
+                onStep?.Invoke(i);
 
-                IsInStopWindow = true;
-                yield return new WaitForSeconds(_hitWindow);
-
-                IsInStopWindow = false;
-                float rest = Mathf.Max(0f, _stopDuration - _hitWindow);
-                yield return new WaitForSeconds(rest);
+                // пауза над символом
+                yield return new WaitForSeconds(stopDuration);
             }
 
-            Debug.Log("Beam: sequence finished");
+            onFinished?.Invoke();
+            _routine = null;
         }
     }
 }
