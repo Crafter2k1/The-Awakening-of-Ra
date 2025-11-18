@@ -1,0 +1,119 @@
+{
+    "levels": [
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        }
+    ]
+}

@@ -12,7 +12,7 @@ namespace Core.SceneManagement
         private const string MainMenuScene = "MainMenuScene";
         private const float  FirstShowDelay = 2.0f;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
             // LoadingScreen

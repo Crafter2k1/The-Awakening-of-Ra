@@ -1,4 +1,5 @@
 ========== FILE: AudioService.cs ==========
+// Assets/Scripts/Core/Audio/AudioService.cs
 using Core.EventBusSystem;
 using Core.Settings;
 using Core.SceneManagement;
@@ -21,30 +22,30 @@ namespace Core.Audio
         [SerializeField] private float onDb  = 0f;
         [SerializeField] private float offDb = -80f;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void Bootstrap()
-        {
-            if (Instance != null) return;
-            var go = new GameObject("[AudioService]");
-            DontDestroyOnLoad(go);
-            Instance = go.AddComponent<AudioService>();
-        }
+        // ❌ повністю видалено RuntimeInitializeOnLoadMethod + самостворення!
 
         private void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // fallback: якщо міксер не підв’язаний у префабі — спробуємо дістати з Resources
+            if (!masterMixer)
+                masterMixer = Resources.Load<AudioMixer>("Audio/MasterMixer");
+
+            if (!masterMixer)
+                Debug.LogError("[AudioService] No AudioMixer assigned/found. Assign in prefab or put at Resources/Audio/MasterMixer.mixer");
         }
 
         private void OnEnable()
         {
-            // Стан налаштувань
             EventBus.Subscribe<SettingsLoaded>(OnSettingsLoaded);
             EventBus.Subscribe<SettingsChanged>(OnSettingsChanged);
-
-            // Після кожної сцени просимо сервіс скинути поточний стан (для нових AudioSource)
             EventBus.Subscribe<SceneReady>(OnSceneReady);
+
+            // одразу синхронізуємо стан (раптом пропустили ранні події)
+            EventBus.Invoke(new SettingsSyncRequested());
         }
 
         private void OnDisable()
@@ -59,7 +60,6 @@ namespace Core.Audio
 
         private void OnSceneReady(SceneReady _)
         {
-            // Запитуємо повторну синхронізацію стану, щоб застосувати його у щойно активованій сцені
             EventBus.Invoke(new SettingsSyncRequested());
         }
 
@@ -153,26 +153,272 @@ namespace Core.FSM
     }
 }
 
-========== FILE: Bootstrap.cs ==========
+========== FILE: GameManager.cs ==========
+using System.Collections.Generic;
+using Core.GamePlay.Levels;
+using Core.GamePlay.Symboll;
 using UnityEngine;
+
+namespace Core.GamePlay
+{
+    public class GameManager : MonoBehaviour
+    {
+        [Header("Refs")]
+        public SunBeamController beam;
+
+        [Tooltip("Позиції, де можуть спавнитись символи (по порядку).")]
+        public Transform[] spawnPoints;
+
+        [Tooltip("Всі види символів (префаби).")]
+        public SymbolNode[] symbolPrefabs;
+
+        [Header("Levels config file (JSON)")]
+        public TextAsset levelsJson;   // сюди закинемо файл
+
+        LevelsFile _levelsFile;
+        LevelData _currentLevel;
+
+        public int currentLevelIndex = 0;
+
+        List<SymbolNode> _spawnedSymbols = new List<SymbolNode>();
+
+        void Start()
+        {
+            if (!beam)
+            {
+                Debug.LogError("GameManager: beam not set!");
+                enabled = false;
+                return;
+            }
+
+            if (!levelsJson)
+            {
+                Debug.LogError("GameManager: levelsJson (TextAsset) is not assigned!");
+                enabled = false;
+                return;
+            }
+
+            // розпарсити JSON
+            _levelsFile = JsonUtility.FromJson<LevelsFile>(levelsJson.text);
+            if (_levelsFile == null || _levelsFile.levels == null || _levelsFile.levels.Length == 0)
+            {
+                Debug.LogError("GameManager: no levels in JSON!");
+                enabled = false;
+                return;
+            }
+
+            if (currentLevelIndex < 0 || currentLevelIndex >= _levelsFile.levels.Length)
+            {
+                currentLevelIndex = 0;
+            }
+
+            _currentLevel = _levelsFile.levels[currentLevelIndex];
+
+            SetupLevel();
+        }
+
+        void SetupLevel()
+        {
+            // видалити старі символи, якщо були
+            foreach (var s in _spawnedSymbols)
+            {
+                if (s != null)
+                    Destroy(s.gameObject);
+            }
+            _spawnedSymbols.Clear();
+
+            if (_currentLevel.symbolPrefabIndices == null || _currentLevel.symbolPrefabIndices.Length == 0)
+            {
+                Debug.LogError("Current level has no symbolPrefabIndices!");
+                return;
+            }
+
+            int count = Mathf.Min(_currentLevel.symbolPrefabIndices.Length, spawnPoints.Length);
+            Transform[] beamPoints = new Transform[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                int prefabIndex = _currentLevel.symbolPrefabIndices[i];
+
+                if (prefabIndex < 0 || prefabIndex >= symbolPrefabs.Length)
+                {
+                    Debug.LogError($"Invalid prefab index {prefabIndex} in level {currentLevelIndex}");
+                    continue;
+                }
+
+                SymbolNode prefab = symbolPrefabs[prefabIndex];
+                Transform point = spawnPoints[i];
+
+                SymbolNode instance = Instantiate(prefab, point.position, Quaternion.identity);
+                instance.SetIdle();
+
+                _spawnedSymbols.Add(instance);
+                beamPoints[i] = instance.transform;
+            }
+
+            // запускаємо промінь з параметрами рівня
+            beam.Init(beamPoints, _currentLevel);
+        }
+
+        void Update()
+        {
+            bool pressed = false;
+
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+                pressed = true;
+
+#if UNITY_ANDROID || UNITY_IOS
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+                pressed = true;
+#endif
+
+            if (pressed)
+                OnPlayerClick();
+        }
+
+        void OnPlayerClick()
+        {
+            if (!beam.IsInStopWindow)
+            {
+                Debug.Log("Click outside hit window");
+                return;
+            }
+
+            int idx = beam.CurrentIndex;
+            if (idx < 0 || idx >= _spawnedSymbols.Count)
+                return;
+
+            SymbolNode node = _spawnedSymbols[idx];
+
+            if (!node.IsActivated)
+            {
+                node.Activate();
+                Debug.Log($"Symbol {idx} activated!");
+            }
+            else
+            {
+                Debug.Log($"Symbol {idx} already active.");
+            }
+        }
+    }
+}
+
+
+========== FILE: SunBeamController.cs ==========
+using System.Collections;
+using UnityEngine;
+using Core.GamePlay.Levels;   // <<< важливо
+
+namespace Core.GamePlay
+{
+    public class SunBeamController : MonoBehaviour
+    {
+        float _moveSpeed;
+        float _stopDuration;
+        float _hitWindow;
+        float _reachDistance = 0.05f;
+
+        Transform[] _points;
+
+        public bool IsInStopWindow { get; private set; }
+        public int CurrentIndex { get; private set; } = -1;
+
+        Coroutine _routine;
+
+        // викликається з GameManager
+        public void Init(Transform[] points, LevelData levelData)   // <<< тут теж
+        {
+            _points = points;
+
+            if (_points == null || _points.Length == 0)
+            {
+                Debug.LogError("SunBeamController.Init: no points!");
+                return;
+            }
+
+            _moveSpeed    = levelData.moveSpeed;
+            _stopDuration = levelData.stopDuration;
+            _hitWindow    = levelData.hitWindow;
+
+            transform.position = _points[0].position;
+            IsInStopWindow = false;
+            CurrentIndex = -1;
+
+            if (_routine != null)
+                StopCoroutine(_routine);
+
+            _routine = StartCoroutine(MoveRoutine());
+        }
+
+        IEnumerator MoveRoutine()
+        {
+            for (int i = 0; i < _points.Length; i++)
+            {
+                Transform target = _points[i];
+
+                while (Vector3.Distance(transform.position, target.position) > _reachDistance)
+                {
+                    transform.position = Vector3.MoveTowards(
+                        transform.position,
+                        target.position,
+                        _moveSpeed * Time.deltaTime
+                    );
+                    yield return null;
+                }
+
+                CurrentIndex = i;
+
+                IsInStopWindow = true;
+                yield return new WaitForSeconds(_hitWindow);
+
+                IsInStopWindow = false;
+                float rest = Mathf.Max(0f, _stopDuration - _hitWindow);
+                yield return new WaitForSeconds(rest);
+            }
+
+            Debug.Log("Beam: sequence finished");
+        }
+    }
+}
+
+
+========== FILE: Bootstrap.cs ==========
+// Assets/Scripts/Core/SceneManagement/Bootstrap.cs
+using UnityEngine;
+using Core.Audio; // ← додай
 
 namespace Core.SceneManagement
 {
     public static class Bootstrap
     {
-        private const string LoadingScreenResPath = "UI/LoadingScreen"; 
-        private const string MainMenuScene = "MainMenuScene";
-        private const float  FirstShowDelay = 2.0f; 
+        private const string LoadingScreenResPath = "UI/LoadingScreen";
+        private const string AudioServiceResPath  = "Systems/AudioService"; // ← нове
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private const string MainMenuScene = "MainMenuScene";
+        private const float  FirstShowDelay = 2.0f;
+
+        //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
+            // LoadingScreen
             if (LoadingScreen.Instance == null)
             {
                 var prefab = Resources.Load<LoadingScreen>(LoadingScreenResPath);
                 if (prefab != null) Object.Instantiate(prefab);
                 else Debug.LogError("[Bootstrap] Missing Resources/UI/LoadingScreen.prefab with LoadingScreen component.");
             }
+
+            // AudioService (без самостворення всередині сервісу)
+            if (AudioService.Instance == null)
+            {
+                var audioPrefab = Resources.Load<AudioService>(AudioServiceResPath);
+                if (audioPrefab != null) Object.Instantiate(audioPrefab);
+                else Debug.LogError("[Bootstrap] Missing Resources/Systems/AudioService.prefab with AudioService component.");
+            }
+
+            // нормалізація часу (за бажанням)
+            // Time.timeScale = 1f;
+
             LoadingScreen.Instance?.LoadScene(MainMenuScene, FirstShowDelay);
         }
     }
@@ -620,6 +866,73 @@ namespace Menu.UI
     }
 }
 
+========== FILE: LevelsConfig.cs ==========
+using System;
+
+namespace Core.GamePlay.Levels
+{
+    [Serializable]
+    public class LevelData
+    {
+        // Які символи спавнити по порядку (індекси в масиві symbolPrefabs)
+        public int[] symbolPrefabIndices;
+
+        // Параметри складності для цього рівня
+        public float moveSpeed = 5f;
+        public float stopDuration = 0.5f;
+        public float hitWindow = 0.3f;
+    }
+
+    [Serializable]
+    public class LevelsFile
+    {
+        public LevelData[] levels;
+    }
+}
+
+========== FILE: SymbolNode.cs ==========
+// SymbolNode.cs
+
+using UnityEngine;
+
+namespace Core.GamePlay.Symboll
+{
+    public class SymbolNode : MonoBehaviour
+    {
+        public SpriteRenderer sprite;
+        public Color idleColor = Color.white;
+        public Color activeColor = Color.yellow;
+
+        bool _activated;
+
+        void Reset()
+        {
+            sprite = GetComponentInChildren<SpriteRenderer>();
+        }
+
+        void Start()
+        {
+            SetIdle();
+        }
+
+        public void SetIdle()
+        {
+            _activated = false;
+            if (sprite != null)
+                sprite.color = idleColor;
+        }
+
+        public void Activate()
+        {
+            _activated = true;
+            if (sprite != null)
+                sprite.color = activeColor;
+        }
+
+        public bool IsActivated => _activated;
+    }
+}
+
 ========== FILE: BasePopup.cs ==========
 using DG.Tweening;
 using UnityEngine;
@@ -844,7 +1157,7 @@ namespace Menu.UI.Popups
             EventBus.Invoke(new SettingsSyncRequested());
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
             EventBus.Unsubscribe<SettingsLoaded>(OnSettings);
             EventBus.Unsubscribe<SettingsChanged>(OnSettings);
