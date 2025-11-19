@@ -4,22 +4,21 @@ using UnityEngine;
 
 namespace Core.GamePlay
 {
-    /// <summary>
-    /// Відповідає за рух променя по послідовності точок під час ФАЗИ ПОКАЗУ.
-    /// У фазі вводу гравця промінь не використовується.
-    /// </summary>
     public class SunBeamController : MonoBehaviour
     {
-        [Tooltip("Наскільки близько до точки вважати, що променя вже \"дійшов\".")]
+        [Header("Beam Origin (стартова точка)")]
+        [SerializeField] private Transform beamOrigin;
+
+        [Header("Beam Prefab (movingPoint + TrailRenderer)")]
+        [SerializeField] private GameObject beamPrefab;
+
+        [Header("Settings")]
         [SerializeField] private float reachDistance = 0.05f;
 
-        Coroutine _routine;
+        private GameObject _currentBeam;
 
-        /// <summary>
-        /// Запускає показ послідовності:
-        /// рухається по points, на кожній точці робить паузу stopDuration.
-        /// При кожному кроці викликає onStep(index), а після завершення — onFinished().
-        /// </summary>
+        private Coroutine _routine;
+
         public void PlaySequence(
             Transform[] points,
             float moveSpeed,
@@ -27,52 +26,90 @@ namespace Core.GamePlay
             Action<int> onStep,
             Action onFinished)
         {
-            if (points == null || points.Length == 0)
-            {
-                Debug.LogError("SunBeamController.PlaySequence: no points!");
-                return;
-            }
-
             if (_routine != null)
                 StopCoroutine(_routine);
 
-            _routine = StartCoroutine(PlayRoutine(points, moveSpeed, stopDuration, onStep, onFinished));
+            _routine = StartCoroutine(ShowRoutine(points, moveSpeed, stopDuration, onStep, onFinished));
         }
 
-        IEnumerator PlayRoutine(
+        private IEnumerator ShowRoutine(
             Transform[] points,
             float moveSpeed,
             float stopDuration,
             Action<int> onStep,
             Action onFinished)
         {
-            // стартуємо з позиції першої точки
-            transform.position = points[0].position;
-
             for (int i = 0; i < points.Length; i++)
             {
-                Transform target = points[i];
+                Vector3 target = points[i].position;
 
-                // рух до точки
-                while (Vector3.Distance(transform.position, target.position) > reachDistance)
-                {
-                    transform.position = Vector3.MoveTowards(
-                        transform.position,
-                        target.position,
-                        moveSpeed * Time.deltaTime
-                    );
-                    yield return null;
-                }
+                // Створюємо новий промінь
+                SpawnBeam();
 
-                // прийшли до i-го елемента послідовності
+                // Летимо
+                yield return MoveBeamTo(target, moveSpeed);
+
+                // повідомляємо GameManager про крок
                 onStep?.Invoke(i);
 
-                // пауза над символом
+                // чекаємо, поки символ підсвічений
                 yield return new WaitForSeconds(stopDuration);
+
+                // Видаляємо промінь
+                ClearBeam();
             }
 
+            ClearBeam();
+
             onFinished?.Invoke();
-            _routine = null;
+        }
+
+        /// <summary>
+        /// Створення нового променя
+        /// </summary>
+        private void SpawnBeam()
+        {
+            // Видаляємо попередній, якщо він був
+            ClearBeam();
+
+            _currentBeam = Instantiate(beamPrefab, beamOrigin.position, Quaternion.identity);
+        }
+
+        /// <summary>
+        /// Рух beamPrefab → target
+        /// </summary>
+        private IEnumerator MoveBeamTo(Vector3 target, float speed)
+        {
+            Transform mover = _currentBeam.transform;
+
+            // скидаємо трейл, якщо є
+            var trail = mover.GetComponent<TrailRenderer>();
+            if (trail) trail.Clear();
+
+            while (Vector3.Distance(mover.position, target) > reachDistance)
+            {
+                mover.position = Vector3.MoveTowards(
+                    mover.position,
+                    target,
+                    speed * Time.deltaTime
+                );
+
+                yield return null;
+            }
+
+            mover.position = target;
+        }
+
+        /// <summary>
+        /// Видаляє поточний промінь
+        /// </summary>
+        private void ClearBeam()
+        {
+            if (_currentBeam != null)
+            {
+                Destroy(_currentBeam);
+                _currentBeam = null;
+            }
         }
     }
 }

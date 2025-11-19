@@ -153,10 +153,30 @@ namespace Core.FSM
     }
 }
 
+========== FILE: GameEvents.cs ==========
+namespace Core.GamePlay
+{
+    public static class GameEvents
+    {
+        public readonly struct PauseRequested { }
+        public readonly struct ResumeRequested { }
+
+        public readonly struct RestartRequested { }
+        public readonly struct NextLevelRequested { }
+        public readonly struct GoToMenuRequested { }
+
+        public readonly struct LevelCompleted { }
+        public readonly struct LevelFailed { }
+    }
+}
+
 ========== FILE: GameManager.cs ==========
 using System.Collections.Generic;
+using Core.EventBusSystem;
 using Core.GamePlay.Levels;
 using Core.GamePlay.Symboll;
+using Core.GamePlay.UI;
+using Core.SceneManagement;
 using UnityEngine;
 
 namespace Core.GamePlay
@@ -192,6 +212,9 @@ namespace Core.GamePlay
         [Tooltip("Який індекс рівня брати з JSON (0-based) при запуску сцени напряму.")]
         public int currentLevelIndex = 0;
 
+        [Header("UI")]
+        [SerializeField] private GameplayHud gameplayHud;
+
         readonly List<SymbolNode> _spawnedSymbols = new List<SymbolNode>();
 
         // послідовність, яку показуємо і яку гравець має повторити
@@ -201,8 +224,27 @@ namespace Core.GamePlay
         bool _isShowingSequence = false;
         bool _isInputPhase = false;
         bool _levelFinished = false;
+        bool _isPaused = false;
 
         int _lastHighlightedIndex = -1;
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<GameEvents.RestartRequested>(OnRestartRequested);
+            EventBus.Subscribe<GameEvents.NextLevelRequested>(OnNextLevelRequested);
+            EventBus.Subscribe<GameEvents.GoToMenuRequested>(OnGoToMenuRequested);
+            EventBus.Subscribe<GameEvents.PauseRequested>(OnPauseRequested);
+            EventBus.Subscribe<GameEvents.ResumeRequested>(OnResumeRequested);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<GameEvents.RestartRequested>(OnRestartRequested);
+            EventBus.Unsubscribe<GameEvents.NextLevelRequested>(OnNextLevelRequested);
+            EventBus.Unsubscribe<GameEvents.GoToMenuRequested>(OnGoToMenuRequested);
+            EventBus.Unsubscribe<GameEvents.PauseRequested>(OnPauseRequested);
+            EventBus.Unsubscribe<GameEvents.ResumeRequested>(OnResumeRequested);
+        }
 
         void Start()
         {
@@ -233,6 +275,9 @@ namespace Core.GamePlay
                 currentLevelIndex = 0;
 
             _currentLevel = _levelsFile.levels[currentLevelIndex];
+
+            if (gameplayHud != null)
+                gameplayHud.SetLevel(currentLevelIndex + 1);
 
             SetupLevel();
             StartShowSequence();
@@ -282,6 +327,8 @@ namespace Core.GamePlay
             _levelFinished = false;
             _isShowingSequence = false;
             _isInputPhase = false;
+            _isPaused = false;
+            Time.timeScale = 1f;
 
             // послідовність поки що: усі символи по порядку
             _sequence = new int[_spawnedSymbols.Count];
@@ -362,7 +409,7 @@ namespace Core.GamePlay
 
         void Update()
         {
-            if (_levelFinished)
+            if (_levelFinished || _isPaused)
                 return;
 
             if (!_isInputPhase)
@@ -424,7 +471,7 @@ namespace Core.GamePlay
 
         void OnSymbolClicked(int clickedIndex)
         {
-            if (!_isInputPhase || _levelFinished)
+            if (!_isInputPhase || _levelFinished || _isPaused)
                 return;
 
             if (_inputIndex < 0 || _inputIndex >= _sequence.Length)
@@ -458,11 +505,7 @@ namespace Core.GamePlay
             _isInputPhase = false;
 
             Debug.Log($"LEVEL COMPLETE! Level index = {currentLevelIndex}");
-
-            // TODO:
-            // - показати UI "You Win"
-            // - перейти на наступний рівень
-            // - або повернутися в меню
+            EventBus.Invoke(new GameEvents.LevelCompleted());
         }
 
         void LevelFailed()
@@ -471,10 +514,62 @@ namespace Core.GamePlay
             _isInputPhase = false;
 
             Debug.Log($"LEVEL FAILED! Level index = {currentLevelIndex}");
+            EventBus.Invoke(new GameEvents.LevelFailed());
+        }
 
-            // TODO:
-            // - показати UI "Retry?"
-            // - перезапустити рівень або повернутися в меню
+        // ---------- HANDLERS UI PODIY ----------
+
+        void OnPauseRequested(GameEvents.PauseRequested _)
+        {
+            if (_levelFinished || _isPaused) return;
+            _isPaused = true;
+            Time.timeScale = 0f;
+        }
+
+        void OnResumeRequested(GameEvents.ResumeRequested _)
+        {
+            if (!_isPaused) return;
+            _isPaused = false;
+            Time.timeScale = 1f;
+        }
+
+        void OnRestartRequested(GameEvents.RestartRequested _)
+        {
+            _isPaused = false;
+            Time.timeScale = 1f;
+            // перезавантажуємо GameScene, рівень почнеться знову з тим самим currentLevelIndex
+            SceneFlow.GoToGame(0.2f);
+        }
+
+        void OnNextLevelRequested(GameEvents.NextLevelRequested _)
+        {
+            _isPaused = false;
+            Time.timeScale = 1f;
+
+            int nextIndex = currentLevelIndex + 1;
+            if (_levelsFile != null && _levelsFile.levels != null && nextIndex < _levelsFile.levels.Length)
+            {
+                currentLevelIndex = nextIndex;
+                _currentLevel = _levelsFile.levels[currentLevelIndex];
+
+                if (gameplayHud != null)
+                    gameplayHud.SetLevel(currentLevelIndex + 1);
+
+                SetupLevel();
+                StartShowSequence();
+            }
+            else
+            {
+                // якщо наступного рівня нема — кидаємо в меню
+                SceneFlow.GoToMenu(0.2f);
+            }
+        }
+
+        void OnGoToMenuRequested(GameEvents.GoToMenuRequested _)
+        {
+            _isPaused = false;
+            Time.timeScale = 1f;
+            SceneFlow.GoToMenu(0.2f);
         }
     }
 }
@@ -505,22 +600,21 @@ using UnityEngine;
 
 namespace Core.GamePlay
 {
-    /// <summary>
-    /// Відповідає за рух променя по послідовності точок під час ФАЗИ ПОКАЗУ.
-    /// У фазі вводу гравця промінь не використовується.
-    /// </summary>
     public class SunBeamController : MonoBehaviour
     {
-        [Tooltip("Наскільки близько до точки вважати, що променя вже \"дійшов\".")]
+        [Header("Beam Origin (стартова точка)")]
+        [SerializeField] private Transform beamOrigin;
+
+        [Header("Beam Prefab (movingPoint + TrailRenderer)")]
+        [SerializeField] private GameObject beamPrefab;
+
+        [Header("Settings")]
         [SerializeField] private float reachDistance = 0.05f;
 
-        Coroutine _routine;
+        private GameObject _currentBeam;
 
-        /// <summary>
-        /// Запускає показ послідовності:
-        /// рухається по points, на кожній точці робить паузу stopDuration.
-        /// При кожному кроці викликає onStep(index), а після завершення — onFinished().
-        /// </summary>
+        private Coroutine _routine;
+
         public void PlaySequence(
             Transform[] points,
             float moveSpeed,
@@ -528,52 +622,90 @@ namespace Core.GamePlay
             Action<int> onStep,
             Action onFinished)
         {
-            if (points == null || points.Length == 0)
-            {
-                Debug.LogError("SunBeamController.PlaySequence: no points!");
-                return;
-            }
-
             if (_routine != null)
                 StopCoroutine(_routine);
 
-            _routine = StartCoroutine(PlayRoutine(points, moveSpeed, stopDuration, onStep, onFinished));
+            _routine = StartCoroutine(ShowRoutine(points, moveSpeed, stopDuration, onStep, onFinished));
         }
 
-        IEnumerator PlayRoutine(
+        private IEnumerator ShowRoutine(
             Transform[] points,
             float moveSpeed,
             float stopDuration,
             Action<int> onStep,
             Action onFinished)
         {
-            // стартуємо з позиції першої точки
-            transform.position = points[0].position;
-
             for (int i = 0; i < points.Length; i++)
             {
-                Transform target = points[i];
+                Vector3 target = points[i].position;
 
-                // рух до точки
-                while (Vector3.Distance(transform.position, target.position) > reachDistance)
-                {
-                    transform.position = Vector3.MoveTowards(
-                        transform.position,
-                        target.position,
-                        moveSpeed * Time.deltaTime
-                    );
-                    yield return null;
-                }
+                // Створюємо новий промінь
+                SpawnBeam();
 
-                // прийшли до i-го елемента послідовності
+                // Летимо
+                yield return MoveBeamTo(target, moveSpeed);
+
+                // повідомляємо GameManager про крок
                 onStep?.Invoke(i);
 
-                // пауза над символом
+                // чекаємо, поки символ підсвічений
                 yield return new WaitForSeconds(stopDuration);
+
+                // Видаляємо промінь
+                ClearBeam();
             }
 
+            ClearBeam();
+
             onFinished?.Invoke();
-            _routine = null;
+        }
+
+        /// <summary>
+        /// Створення нового променя
+        /// </summary>
+        private void SpawnBeam()
+        {
+            // Видаляємо попередній, якщо він був
+            ClearBeam();
+
+            _currentBeam = Instantiate(beamPrefab, beamOrigin.position, Quaternion.identity);
+        }
+
+        /// <summary>
+        /// Рух beamPrefab → target
+        /// </summary>
+        private IEnumerator MoveBeamTo(Vector3 target, float speed)
+        {
+            Transform mover = _currentBeam.transform;
+
+            // скидаємо трейл, якщо є
+            var trail = mover.GetComponent<TrailRenderer>();
+            if (trail) trail.Clear();
+
+            while (Vector3.Distance(mover.position, target) > reachDistance)
+            {
+                mover.position = Vector3.MoveTowards(
+                    mover.position,
+                    target,
+                    speed * Time.deltaTime
+                );
+
+                yield return null;
+            }
+
+            mover.position = target;
+        }
+
+        /// <summary>
+        /// Видаляє поточний промінь
+        /// </summary>
+        private void ClearBeam()
+        {
+            if (_currentBeam != null)
+            {
+                Destroy(_currentBeam);
+                _currentBeam = null;
+            }
         }
     }
 }
@@ -1144,6 +1276,252 @@ namespace Core.GamePlay.Symboll
             transform.localScale = highlighted
                 ? _baseScale * highlightScaleMul
                 : _baseScale;
+        }
+    }
+}
+
+========== FILE: GameplayHud.cs ==========
+// Assets/Scripts/Core/GamePlay/UI/GameplayHud.cs
+using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.UI;
+using Menu.UI.Popups;
+using TMPro; // BasePopup
+
+namespace Core.GamePlay.UI
+{
+    public sealed class GameplayHud : BasePopup
+    {
+        [Header("Buttons")]
+        [SerializeField] private Button pauseButton;
+
+        [Header("Texts")]
+        [SerializeField] private TextMeshProUGUI levelText; // або TMP_Text, якщо хочеш — тоді поміняй тип
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (pauseButton)
+                pauseButton.onClick.AddListener(OnPauseClicked);
+        }
+
+        private void OnDestroy()
+        {
+            if (pauseButton)
+                pauseButton.onClick.RemoveListener(OnPauseClicked);
+        }
+
+        private void OnPauseClicked()
+        {
+            EventBus.Invoke(new GameEvents.PauseRequested());
+        }
+
+        public void SetLevel(int levelNumber)
+        {
+            if (!levelText) return;
+            levelText.text = $"Level {levelNumber}";
+        }
+    }
+}
+
+========== FILE: GameUIManager.cs ==========
+// Assets/Scripts/Core/GamePlay/UI/GameUIManager.cs
+using Core.EventBusSystem;
+using UnityEngine;
+
+namespace Core.GamePlay.UI
+{
+    public sealed class GameUIManager : MonoBehaviour
+    {
+        [Header("Views")]
+        [SerializeField] private GameplayHud gameplayHud;
+        [SerializeField] private PausePopup pausePopup;
+        [SerializeField] private WinPopup winPopup;
+        [SerializeField] private LosePopup losePopup;
+
+        private void Awake()
+        {
+            // стартовий стан:
+            if (pausePopup) pausePopup.HideView();
+            if (winPopup)   winPopup.HideView();
+            if (losePopup)  losePopup.HideView();
+            if (gameplayHud) gameplayHud.ShowView();
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<GameEvents.PauseRequested>(OnPauseRequested);
+            EventBus.Subscribe<GameEvents.ResumeRequested>(OnResumeRequested);
+            EventBus.Subscribe<GameEvents.LevelCompleted>(OnLevelCompleted);
+            EventBus.Subscribe<GameEvents.LevelFailed>(OnLevelFailed);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<GameEvents.PauseRequested>(OnPauseRequested);
+            EventBus.Unsubscribe<GameEvents.ResumeRequested>(OnResumeRequested);
+            EventBus.Unsubscribe<GameEvents.LevelCompleted>(OnLevelCompleted);
+            EventBus.Unsubscribe<GameEvents.LevelFailed>(OnLevelFailed);
+        }
+
+        void OnPauseRequested(GameEvents.PauseRequested _)
+        {
+            if (pausePopup) pausePopup.ShowView();
+        }
+
+        void OnResumeRequested(GameEvents.ResumeRequested _)
+        {
+            if (pausePopup) pausePopup.HideView();
+        }
+
+        void OnLevelCompleted(GameEvents.LevelCompleted _)
+        {
+            if (pausePopup) pausePopup.HideView();
+            if (winPopup)   winPopup.ShowView();
+        }
+
+        void OnLevelFailed(GameEvents.LevelFailed _)
+        {
+            if (pausePopup) pausePopup.HideView();
+            if (losePopup)  losePopup.ShowView();
+        }
+    }
+}
+
+
+========== FILE: LosePopup.cs ==========
+// Assets/Scripts/Core/GamePlay/UI/LosePopup.cs
+using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.UI;
+using Menu.UI.Popups;
+
+namespace Core.GamePlay.UI
+{
+    public sealed class LosePopup : BasePopup
+    {
+        [SerializeField] private Button restartButton;
+        [SerializeField] private Button menuButton;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (restartButton) restartButton.onClick.AddListener(OnRestartClicked);
+            if (menuButton)    menuButton.onClick.AddListener(OnMenuClicked);
+        }
+
+        private void OnDestroy()
+        {
+            if (restartButton) restartButton.onClick.RemoveListener(OnRestartClicked);
+            if (menuButton)    menuButton.onClick.RemoveListener(OnMenuClicked);
+        }
+
+        private void OnRestartClicked()
+        {
+            EventBus.Invoke(new GameEvents.RestartRequested());
+        }
+
+        private void OnMenuClicked()
+        {
+            EventBus.Invoke(new GameEvents.GoToMenuRequested());
+        }
+    }
+}
+
+========== FILE: PausePopup.cs ==========
+// Assets/Scripts/Core/GamePlay/UI/PausePopup.cs
+using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.UI;
+using Menu.UI.Popups;
+
+namespace Core.GamePlay.UI
+{
+    public sealed class PausePopup : BasePopup
+    {
+        [Header("Buttons")]
+        [SerializeField] private Button resumeButton;
+        [SerializeField] private Button restartButton;
+        [SerializeField] private Button menuButton;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (resumeButton)  resumeButton.onClick.AddListener(OnResumeClicked);
+            if (restartButton) restartButton.onClick.AddListener(OnRestartClicked);
+            if (menuButton)    menuButton.onClick.AddListener(OnMenuClicked);
+        }
+
+        private void OnDestroy()
+        {
+            if (resumeButton)  resumeButton.onClick.RemoveListener(OnResumeClicked);
+            if (restartButton) restartButton.onClick.RemoveListener(OnRestartClicked);
+            if (menuButton)    menuButton.onClick.RemoveListener(OnMenuClicked);
+        }
+
+        private void OnResumeClicked()
+        {
+            EventBus.Invoke(new GameEvents.ResumeRequested());
+        }
+
+        private void OnRestartClicked()
+        {
+            EventBus.Invoke(new GameEvents.RestartRequested());
+        }
+
+        private void OnMenuClicked()
+        {
+            EventBus.Invoke(new GameEvents.GoToMenuRequested());
+        }
+    }
+}
+
+========== FILE: WinPopup.cs ==========
+// Assets/Scripts/Core/GamePlay/UI/WinPopup.cs
+using Core.EventBusSystem;
+using UnityEngine;
+using UnityEngine.UI;
+using Menu.UI.Popups;
+
+namespace Core.GamePlay.UI
+{
+    public sealed class WinPopup : BasePopup
+    {
+        [Header("Buttons")]
+        [SerializeField] private Button nextLevelButton;
+        [SerializeField] private Button menuButton;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (nextLevelButton)
+                nextLevelButton.onClick.AddListener(OnNextClicked);
+
+            if (menuButton)
+                menuButton.onClick.AddListener(OnMenuClicked);
+        }
+
+        private void OnDestroy()
+        {
+            if (nextLevelButton)
+                nextLevelButton.onClick.RemoveListener(OnNextClicked);
+
+            if (menuButton)
+                menuButton.onClick.RemoveListener(OnMenuClicked);
+        }
+
+        private void OnNextClicked()
+        {
+            EventBus.Invoke(new GameEvents.NextLevelRequested());
+        }
+
+        private void OnMenuClicked()
+        {
+            EventBus.Invoke(new GameEvents.GoToMenuRequested());
         }
     }
 }
