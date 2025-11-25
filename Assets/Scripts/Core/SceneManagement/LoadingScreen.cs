@@ -20,8 +20,7 @@ namespace Core.SceneManagement
         [Header("Config (Inspector)")]
         [SerializeField, Tooltip("Швидкість згладжування заповнення (візуально).")]
         private float smoothSpeed = 6f;
-
-        // Значення за замовчуванням (якщо Bootstrap не передасть оверрайд)
+        
         private const float DefaultFakeFinishTime = 1.0f;
 
         private Coroutine _routine;
@@ -37,11 +36,7 @@ namespace Core.SceneManagement
             if (root) root.SetActive(false);
             if (progressBar) progressBar.value = 0f;
         }
-
-        /// <summary>
-        /// Завантажує сцену з екраном завантаження.
-        /// fakeDelayOverride — тривалість штучної фази 75% → 100% (сек), зазвичай задається Bootstrap-ом.
-        /// </summary>
+        
         public void LoadScene(string sceneName, float? fakeDelayOverride = null)
         {
             if (string.IsNullOrWhiteSpace(sceneName))
@@ -49,23 +44,20 @@ namespace Core.SceneManagement
                 Debug.LogError("[LoadingScreen] Scene name is null or empty.");
                 return;
             }
-
-            // якщо намагаємось завантажити активну сцену — нічого не робимо
+            
             if (SceneManager.GetActiveScene().name == sceneName)
             {
                 Debug.LogWarning($"[LoadingScreen] Scene '{sceneName}' is already active.");
                 root?.SetActive(false);
                 return;
             }
-
-            // перевірка на наявність у Build Settings
+            
             if (!Application.CanStreamedLevelBeLoaded(sceneName))
             {
                 Debug.LogError($"[LoadingScreen] Scene '{sceneName}' is not in Build Settings.");
                 return;
             }
-
-            // захист від повторних викликів одного й того ж лоаду
+            
             if (_isLoading && _targetScene == sceneName)
                 return;
 

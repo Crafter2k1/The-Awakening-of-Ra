@@ -34,11 +34,15 @@ namespace Core.GamePlay.UI
 
         private void OnNextClicked()
         {
+            // ✨ ховаємо попап перемоги перед переходом на наступний рівень
+            HideView();
             EventBus.Invoke(new GameEvents.NextLevelRequested());
         }
 
         private void OnMenuClicked()
         {
+            // ✨ ховаємо попап перемоги перед виходом у меню
+            HideView();
             EventBus.Invoke(new GameEvents.GoToMenuRequested());
         }
     }

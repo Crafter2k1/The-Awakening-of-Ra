@@ -277,7 +277,7 @@ namespace Core.GamePlay
             _currentLevel = _levelsFile.levels[currentLevelIndex];
 
             if (gameplayHud != null)
-                gameplayHud.SetLevel(currentLevelIndex + 1);
+                gameplayHud.SetLevel(currentLevelIndex);
 
             SetupLevel();
             StartShowSequence();
@@ -537,8 +537,10 @@ namespace Core.GamePlay
         {
             _isPaused = false;
             Time.timeScale = 1f;
-            // перезавантажуємо GameScene, рівень почнеться знову з тим самим currentLevelIndex
-            SceneFlow.GoToGame(0.2f);
+
+            // достатньо скинути рівень та заново показати послідовність
+            SetupLevel();
+            StartShowSequence();
         }
 
         void OnNextLevelRequested(GameEvents.NextLevelRequested _)
@@ -553,7 +555,7 @@ namespace Core.GamePlay
                 _currentLevel = _levelsFile.levels[currentLevelIndex];
 
                 if (gameplayHud != null)
-                    gameplayHud.SetLevel(currentLevelIndex + 1);
+                    gameplayHud.SetLevel(currentLevelIndex);
 
                 SetupLevel();
                 StartShowSequence();
@@ -576,19 +578,12 @@ namespace Core.GamePlay
 
 
 ========== FILE: GameSession.cs ==========
-// Assets/Scripts/Core/GamePlay/GameSession.cs
 namespace Core.GamePlay
 {
     public static class GameSession
     {
-        /// <summary>
-        /// Поточний індекс рівня із JSON (0-based).
-        /// </summary>
         public static int CurrentLevelIndex { get; set; } = 0;
-
-        /// <summary>
-        /// Опціонально: айді з меню (якщо юзаєш рядкові LevelId).
-        /// </summary>
+        
         public static string CurrentLevelId { get; set; } = "0";
     }
 }
@@ -726,27 +721,22 @@ namespace Core.SceneManagement
         private const string MainMenuScene = "MainMenuScene";
         private const float  FirstShowDelay = 2.0f;
 
-        //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
-            // LoadingScreen
             if (LoadingScreen.Instance == null)
             {
                 var prefab = Resources.Load<LoadingScreen>(LoadingScreenResPath);
                 if (prefab != null) Object.Instantiate(prefab);
                 else Debug.LogError("[Bootstrap] Missing Resources/UI/LoadingScreen.prefab with LoadingScreen component.");
             }
-
-            // AudioService (без самостворення всередині сервісу)
+            
             if (AudioService.Instance == null)
             {
                 var audioPrefab = Resources.Load<AudioService>(AudioServiceResPath);
                 if (audioPrefab != null) Object.Instantiate(audioPrefab);
                 else Debug.LogError("[Bootstrap] Missing Resources/Systems/AudioService.prefab with AudioService component.");
             }
-
-            // нормалізація часу (за бажанням)
-            // Time.timeScale = 1f;
 
             LoadingScreen.Instance?.LoadScene(MainMenuScene, FirstShowDelay);
         }
@@ -776,8 +766,7 @@ namespace Core.SceneManagement
         [Header("Config (Inspector)")]
         [SerializeField, Tooltip("Швидкість згладжування заповнення (візуально).")]
         private float smoothSpeed = 6f;
-
-        // Значення за замовчуванням (якщо Bootstrap не передасть оверрайд)
+        
         private const float DefaultFakeFinishTime = 1.0f;
 
         private Coroutine _routine;
@@ -793,11 +782,7 @@ namespace Core.SceneManagement
             if (root) root.SetActive(false);
             if (progressBar) progressBar.value = 0f;
         }
-
-        /// <summary>
-        /// Завантажує сцену з екраном завантаження.
-        /// fakeDelayOverride — тривалість штучної фази 75% → 100% (сек), зазвичай задається Bootstrap-ом.
-        /// </summary>
+        
         public void LoadScene(string sceneName, float? fakeDelayOverride = null)
         {
             if (string.IsNullOrWhiteSpace(sceneName))
@@ -805,23 +790,20 @@ namespace Core.SceneManagement
                 Debug.LogError("[LoadingScreen] Scene name is null or empty.");
                 return;
             }
-
-            // якщо намагаємось завантажити активну сцену — нічого не робимо
+            
             if (SceneManager.GetActiveScene().name == sceneName)
             {
                 Debug.LogWarning($"[LoadingScreen] Scene '{sceneName}' is already active.");
                 root?.SetActive(false);
                 return;
             }
-
-            // перевірка на наявність у Build Settings
+            
             if (!Application.CanStreamedLevelBeLoaded(sceneName))
             {
                 Debug.LogError($"[LoadingScreen] Scene '{sceneName}' is not in Build Settings.");
                 return;
             }
-
-            // захист від повторних викликів одного й того ж лоаду
+            
             if (_isLoading && _targetScene == sceneName)
                 return;
 
@@ -1326,7 +1308,6 @@ namespace Core.GamePlay.UI
 }
 
 ========== FILE: GameUIManager.cs ==========
-// Assets/Scripts/Core/GamePlay/UI/GameUIManager.cs
 using Core.EventBusSystem;
 using UnityEngine;
 
@@ -1342,7 +1323,6 @@ namespace Core.GamePlay.UI
 
         private void Awake()
         {
-            // стартовий стан:
             if (pausePopup) pausePopup.HideView();
             if (winPopup)   winPopup.HideView();
             if (losePopup)  losePopup.HideView();
@@ -1355,6 +1335,8 @@ namespace Core.GamePlay.UI
             EventBus.Subscribe<GameEvents.ResumeRequested>(OnResumeRequested);
             EventBus.Subscribe<GameEvents.LevelCompleted>(OnLevelCompleted);
             EventBus.Subscribe<GameEvents.LevelFailed>(OnLevelFailed);
+            EventBus.Subscribe<GameEvents.RestartRequested>(OnRestartRequested);
+            EventBus.Subscribe<GameEvents.GoToMenuRequested>(OnGoToMenuRequested);   // 👈 додано
         }
 
         private void OnDisable()
@@ -1363,6 +1345,8 @@ namespace Core.GamePlay.UI
             EventBus.Unsubscribe<GameEvents.ResumeRequested>(OnResumeRequested);
             EventBus.Unsubscribe<GameEvents.LevelCompleted>(OnLevelCompleted);
             EventBus.Unsubscribe<GameEvents.LevelFailed>(OnLevelFailed);
+            EventBus.Unsubscribe<GameEvents.RestartRequested>(OnRestartRequested);
+            EventBus.Unsubscribe<GameEvents.GoToMenuRequested>(OnGoToMenuRequested); // 👈 додано
         }
 
         void OnPauseRequested(GameEvents.PauseRequested _)
@@ -1385,6 +1369,22 @@ namespace Core.GamePlay.UI
         {
             if (pausePopup) pausePopup.HideView();
             if (losePopup)  losePopup.ShowView();
+        }
+
+        void OnRestartRequested(GameEvents.RestartRequested _)
+        {
+            if (pausePopup) pausePopup.HideView();
+            if (winPopup)   winPopup.HideView();
+            if (losePopup)  losePopup.HideView();
+            if (gameplayHud) gameplayHud.ShowView();
+        }
+
+        // 👇 нове — ховає PausePopup при виході в меню
+        void OnGoToMenuRequested(GameEvents.GoToMenuRequested _)
+        {
+            if (pausePopup) pausePopup.HideView();
+            if (winPopup)   winPopup.HideView();
+            if (losePopup)  losePopup.HideView();
         }
     }
 }
@@ -1516,11 +1516,15 @@ namespace Core.GamePlay.UI
 
         private void OnNextClicked()
         {
+            // ✨ ховаємо попап перемоги перед переходом на наступний рівень
+            HideView();
             EventBus.Invoke(new GameEvents.NextLevelRequested());
         }
 
         private void OnMenuClicked()
         {
+            // ✨ ховаємо попап перемоги перед виходом у меню
+            HideView();
             EventBus.Invoke(new GameEvents.GoToMenuRequested());
         }
     }
@@ -1677,7 +1681,6 @@ namespace Menu.UI.Popups
 using Core.EventBusSystem;
 using UnityEngine;
 using UnityEngine.UI;
-// OpenSettings, OpenLevelSelection, QuitRequested, StartGameRequested (якщо треба)
 
 namespace Menu.UI.Popups
 {
@@ -1686,29 +1689,42 @@ namespace Menu.UI.Popups
         [Header("Buttons")]
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button levelSelectButton;
-
-
         [SerializeField] private Button quitButton;
 
         protected override void Awake()
         {
             base.Awake();
 
-            if (settingsButton)     settingsButton.onClick.AddListener(OnSettingsClicked);
-            if (levelSelectButton)  levelSelectButton.onClick.AddListener(OnLevelSelectClicked);
-            if (quitButton)         quitButton.onClick.AddListener(OnQuitClicked);
+            if (settingsButton)
+                settingsButton.onClick.AddListener(OnSettingsClicked);
+
+            if (levelSelectButton)
+                levelSelectButton.onClick.AddListener(OnLevelSelectClicked);
+
+            if (quitButton)
+                quitButton.onClick.AddListener(OnQuitClicked);
         }
 
         private void OnDestroy()
         {
-            if (settingsButton)     settingsButton.onClick.RemoveListener(OnSettingsClicked);
-            if (levelSelectButton)  levelSelectButton.onClick.RemoveListener(OnLevelSelectClicked);
-            if (quitButton)         quitButton.onClick.RemoveListener(OnQuitClicked);
+            if (settingsButton)
+                settingsButton.onClick.RemoveListener(OnSettingsClicked);
+
+            if (levelSelectButton)
+                levelSelectButton.onClick.RemoveListener(OnLevelSelectClicked);
+
+            if (quitButton)
+                quitButton.onClick.RemoveListener(OnQuitClicked);
         }
 
-        private void OnSettingsClicked()    => EventBus.Invoke(new MenuEvents.OpenSettings());
-        private void OnLevelSelectClicked() => EventBus.Invoke(new MenuEvents.OpenLevelSelection());
-        private void OnQuitClicked()        => EventBus.Invoke(new MenuEvents.QuitRequested());
+        private void OnSettingsClicked()
+            => EventBus.Invoke(new MenuEvents.OpenSettings());
+        
+        private void OnLevelSelectClicked()
+            => EventBus.Invoke(new MenuEvents.StartGameRequested());
+
+        private void OnQuitClicked()
+            => EventBus.Invoke(new MenuEvents.QuitRequested());
     }
 }
 

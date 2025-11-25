@@ -1,7 +1,6 @@
 ﻿using Core.EventBusSystem;
 using UnityEngine;
 using UnityEngine.UI;
-// OpenSettings, OpenLevelSelection, QuitRequested, StartGameRequested (якщо треба)
 
 namespace Menu.UI.Popups
 {
@@ -10,28 +9,41 @@ namespace Menu.UI.Popups
         [Header("Buttons")]
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button levelSelectButton;
-
-
         [SerializeField] private Button quitButton;
 
         protected override void Awake()
         {
             base.Awake();
 
-            if (settingsButton)     settingsButton.onClick.AddListener(OnSettingsClicked);
-            if (levelSelectButton)  levelSelectButton.onClick.AddListener(OnLevelSelectClicked);
-            if (quitButton)         quitButton.onClick.AddListener(OnQuitClicked);
+            if (settingsButton)
+                settingsButton.onClick.AddListener(OnSettingsClicked);
+
+            if (levelSelectButton)
+                levelSelectButton.onClick.AddListener(OnLevelSelectClicked);
+
+            if (quitButton)
+                quitButton.onClick.AddListener(OnQuitClicked);
         }
 
         private void OnDestroy()
         {
-            if (settingsButton)     settingsButton.onClick.RemoveListener(OnSettingsClicked);
-            if (levelSelectButton)  levelSelectButton.onClick.RemoveListener(OnLevelSelectClicked);
-            if (quitButton)         quitButton.onClick.RemoveListener(OnQuitClicked);
+            if (settingsButton)
+                settingsButton.onClick.RemoveListener(OnSettingsClicked);
+
+            if (levelSelectButton)
+                levelSelectButton.onClick.RemoveListener(OnLevelSelectClicked);
+
+            if (quitButton)
+                quitButton.onClick.RemoveListener(OnQuitClicked);
         }
 
-        private void OnSettingsClicked()    => EventBus.Invoke(new MenuEvents.OpenSettings());
-        private void OnLevelSelectClicked() => EventBus.Invoke(new MenuEvents.OpenLevelSelection());
-        private void OnQuitClicked()        => EventBus.Invoke(new MenuEvents.QuitRequested());
+        private void OnSettingsClicked()
+            => EventBus.Invoke(new MenuEvents.OpenSettings());
+        
+        private void OnLevelSelectClicked()
+            => EventBus.Invoke(new MenuEvents.StartGameRequested());
+
+        private void OnQuitClicked()
+            => EventBus.Invoke(new MenuEvents.QuitRequested());
     }
 }

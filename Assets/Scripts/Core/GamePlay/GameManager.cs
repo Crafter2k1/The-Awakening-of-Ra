@@ -104,7 +104,7 @@ namespace Core.GamePlay
             _currentLevel = _levelsFile.levels[currentLevelIndex];
 
             if (gameplayHud != null)
-                gameplayHud.SetLevel(currentLevelIndex + 1);
+                gameplayHud.SetLevel(currentLevelIndex);
 
             SetupLevel();
             StartShowSequence();
@@ -364,8 +364,10 @@ namespace Core.GamePlay
         {
             _isPaused = false;
             Time.timeScale = 1f;
-            // перезавантажуємо GameScene, рівень почнеться знову з тим самим currentLevelIndex
-            SceneFlow.GoToGame(0.2f);
+
+            // достатньо скинути рівень та заново показати послідовність
+            SetupLevel();
+            StartShowSequence();
         }
 
         void OnNextLevelRequested(GameEvents.NextLevelRequested _)
@@ -380,7 +382,7 @@ namespace Core.GamePlay
                 _currentLevel = _levelsFile.levels[currentLevelIndex];
 
                 if (gameplayHud != null)
-                    gameplayHud.SetLevel(currentLevelIndex + 1);
+                    gameplayHud.SetLevel(currentLevelIndex);
 
                 SetupLevel();
                 StartShowSequence();

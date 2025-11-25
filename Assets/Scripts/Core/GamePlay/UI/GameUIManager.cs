@@ -1,5 +1,4 @@
-﻿// Assets/Scripts/Core/GamePlay/UI/GameUIManager.cs
-using Core.EventBusSystem;
+﻿using Core.EventBusSystem;
 using UnityEngine;
 
 namespace Core.GamePlay.UI
@@ -14,7 +13,6 @@ namespace Core.GamePlay.UI
 
         private void Awake()
         {
-            // стартовий стан:
             if (pausePopup) pausePopup.HideView();
             if (winPopup)   winPopup.HideView();
             if (losePopup)  losePopup.HideView();
@@ -27,6 +25,8 @@ namespace Core.GamePlay.UI
             EventBus.Subscribe<GameEvents.ResumeRequested>(OnResumeRequested);
             EventBus.Subscribe<GameEvents.LevelCompleted>(OnLevelCompleted);
             EventBus.Subscribe<GameEvents.LevelFailed>(OnLevelFailed);
+            EventBus.Subscribe<GameEvents.RestartRequested>(OnRestartRequested);
+            EventBus.Subscribe<GameEvents.GoToMenuRequested>(OnGoToMenuRequested);   // 👈 додано
         }
 
         private void OnDisable()
@@ -35,6 +35,8 @@ namespace Core.GamePlay.UI
             EventBus.Unsubscribe<GameEvents.ResumeRequested>(OnResumeRequested);
             EventBus.Unsubscribe<GameEvents.LevelCompleted>(OnLevelCompleted);
             EventBus.Unsubscribe<GameEvents.LevelFailed>(OnLevelFailed);
+            EventBus.Unsubscribe<GameEvents.RestartRequested>(OnRestartRequested);
+            EventBus.Unsubscribe<GameEvents.GoToMenuRequested>(OnGoToMenuRequested); // 👈 додано
         }
 
         void OnPauseRequested(GameEvents.PauseRequested _)
@@ -57,6 +59,22 @@ namespace Core.GamePlay.UI
         {
             if (pausePopup) pausePopup.HideView();
             if (losePopup)  losePopup.ShowView();
+        }
+
+        void OnRestartRequested(GameEvents.RestartRequested _)
+        {
+            if (pausePopup) pausePopup.HideView();
+            if (winPopup)   winPopup.HideView();
+            if (losePopup)  losePopup.HideView();
+            if (gameplayHud) gameplayHud.ShowView();
+        }
+
+        // 👇 нове — ховає PausePopup при виході в меню
+        void OnGoToMenuRequested(GameEvents.GoToMenuRequested _)
+        {
+            if (pausePopup) pausePopup.HideView();
+            if (winPopup)   winPopup.HideView();
+            if (losePopup)  losePopup.HideView();
         }
     }
 }
