@@ -2,125 +2,19 @@
     "levels": [
         {
             "symbolPrefabIndices": [
-                4,
-                5,
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                6,
                 0,
-                7
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                6,
-                7,
                 1,
-                3
+                2
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                5,
+            "spawnPointIndices": [
+                0,
                 1,
-                3,
                 2
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                5,
+            "sequenceIndices": [
                 0,
-                6,
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                4,
-                3,
-                6,
-                0,
-                2
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0,
-                3,
-                5,
-                7,
-                2
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0,
-                3,
-                5,
-                4,
-                6
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                4,
-                7,
-                0,
-                5,
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1,
-                5,
-                4,
-                3,
-                2
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                5,
                 2,
-                3,
-                4,
-                1,
-                6
+                1
             ],
             "moveSpeed": 5.0,
             "stopDuration": 0.5,
@@ -128,11 +22,243 @@
         },
         {
             "symbolPrefabIndices": [
-                6,
-                5,
+                0,
+                1,
+                2
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2
+            ],
+            "sequenceIndices": [
+                1,
+                0,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
                 1,
                 2,
-                7,
+                3
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "sequenceIndices": [
+                3,
+                0,
+                2,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "sequenceIndices": [
+                2,
+                1,
+                0,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "sequenceIndices": [
+                1,
+                3,
+                0,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "sequenceIndices": [
+                1,
+                0,
+                4,
+                3,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "sequenceIndices": [
+                2,
+                1,
+                0,
+                3,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "sequenceIndices": [
+                4,
+                2,
+                0,
+                3,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "sequenceIndices": [
+                4,
+                2,
+                0,
+                1,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "sequenceIndices": [
+                1,
+                4,
+                0,
+                3,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "sequenceIndices": [
+                4,
+                2,
+                3,
+                1,
                 0
             ],
             "moveSpeed": 5.0,
@@ -141,9 +267,510 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
                 3,
+                4
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "sequenceIndices": [
+                2,
+                1,
                 0,
                 4,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "sequenceIndices": [
+                5,
+                3,
+                4,
+                1,
+                2,
+                0
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "sequenceIndices": [
+                1,
+                0,
+                2,
+                3,
+                4,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "sequenceIndices": [
+                3,
+                5,
+                1,
+                4,
+                0,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "sequenceIndices": [
+                2,
+                5,
+                0,
+                4,
+                3,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "sequenceIndices": [
+                1,
+                4,
+                2,
+                0,
+                3,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "sequenceIndices": [
+                2,
+                4,
+                3,
+                5,
+                1,
+                0
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "sequenceIndices": [
+                2,
+                5,
+                3,
+                4,
+                0,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "sequenceIndices": [
+                0,
+                2,
+                5,
+                4,
+                3,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                0,
+                5,
+                2,
+                3,
+                1,
+                4,
+                6
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                1,
+                5,
+                4,
+                6,
+                2,
+                0,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                0,
+                5,
+                1,
+                2,
+                3,
+                4,
+                6
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                5,
+                4,
+                1,
+                0,
+                3,
+                6,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                6,
+                2,
+                4,
+                5,
+                3,
+                0,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                6,
+                4,
+                2,
+                3,
+                5,
+                0,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                2,
+                0,
+                5,
+                4,
+                6,
+                1,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                4,
+                0,
+                1,
+                3,
                 6,
                 2,
                 5
@@ -154,21 +781,27 @@
         },
         {
             "symbolPrefabIndices": [
-                2,
-                5,
-                3,
-                6,
+                0,
                 1,
-                7
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
+                2,
+                3,
                 4,
                 5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                5,
+                6,
+                4,
                 2,
                 1,
                 0,
@@ -180,10 +813,752 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                2,
+                6,
+                4,
+                3,
+                5,
+                0,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                0,
+                6,
+                4,
+                3,
+                2,
+                5,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                1,
+                0,
+                5,
+                4,
+                6,
+                3,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                2,
                 3,
                 1,
+                0,
+                4,
+                6,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "sequenceIndices": [
+                4,
+                6,
+                2,
+                1,
+                5,
+                3,
+                0
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                6,
+                1,
+                2,
+                3,
+                0,
+                5,
+                7,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                3,
+                6,
+                5,
+                1,
+                7,
+                2,
+                0
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                1,
+                3,
+                2,
+                6,
+                5,
+                7,
+                0,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                1,
+                6,
+                2,
+                7,
+                4,
+                3,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                5,
+                2,
+                3,
                 7,
                 6,
+                0,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                3,
+                7,
+                2,
+                0,
+                1,
+                6,
+                4,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                6,
+                3,
+                4,
+                7,
+                5,
+                0,
+                2,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                2,
+                6,
+                4,
+                7,
+                3,
+                1,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                2,
+                3,
+                0,
+                7,
+                1,
+                6,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                2,
+                7,
+                0,
+                4,
+                6,
+                1,
+                3,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                3,
+                2,
+                5,
+                0,
+                4,
+                7,
+                6,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                6,
+                4,
+                2,
+                7,
+                5,
+                0,
+                1,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                6,
+                5,
+                2,
+                7,
+                0,
+                1,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                6,
+                7,
+                2,
+                3,
+                5,
+                0,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                4,
+                7,
+                2,
+                5,
+                1,
+                6,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                4,
+                2,
+                1,
+                3,
+                5,
+                6,
+                7
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                5,
+                7,
+                1,
+                6,
+                3,
                 2,
                 4
             ],
@@ -193,11 +1568,173 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
                 5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                0,
+                2,
+                1,
                 3,
                 7,
-                6,
+                5,
+                6
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
                 0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                4,
+                7,
+                3,
+                6,
+                1,
+                2,
+                0
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                3,
+                7,
+                2,
+                1,
+                5,
+                4,
+                6
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                2,
+                3,
+                7,
+                0,
+                6,
+                4,
+                5,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                1,
+                3,
+                6,
+                4,
+                0,
+                7,
                 2
             ],
             "moveSpeed": 5.0,
@@ -206,51 +1743,33 @@
         },
         {
             "symbolPrefabIndices": [
-                4,
-                2,
+                0,
                 1,
-                3,
-                5,
-                6
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0,
-                3,
                 2,
-                7,
-                6,
-                1
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0,
-                6,
+                3,
                 4,
-                2,
-                7,
-                1
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
                 5,
-                7,
-                3,
                 6,
+                7
+            ],
+            "spawnPointIndices": [
                 0,
+                1,
                 2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                3,
+                5,
+                0,
+                7,
+                2,
+                6,
+                1,
                 4
             ],
             "moveSpeed": 5.0,
@@ -259,12 +1778,173 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
                 3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                6,
+                1,
+                2,
+                0,
+                3,
+                5,
+                7,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                6,
+                2,
+                7,
+                0,
+                3,
+                1,
+                4
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                3,
+                1,
+                2,
+                7,
+                0,
+                6,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                7,
+                0,
+                1,
+                2,
+                4,
+                6,
+                3,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
                 0,
                 7,
-                1,
+                3,
                 5,
                 2,
+                4,
+                1,
                 6
             ],
             "moveSpeed": 5.0,
@@ -273,13 +1953,34 @@
         },
         {
             "symbolPrefabIndices": [
-                2,
-                6,
-                4,
+                0,
                 1,
+                2,
                 3,
+                4,
                 5,
+                6,
                 7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                5,
+                7,
+                1,
+                2,
+                3,
+                6,
+                4
             ],
             "moveSpeed": 5.0,
             "stopDuration": 0.5,
@@ -287,12 +1988,33 @@
         },
         {
             "symbolPrefabIndices": [
-                7,
+                0,
+                1,
                 2,
+                3,
+                4,
+                5,
                 6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                6,
+                1,
                 5,
                 4,
-                1,
+                2,
+                3,
+                7,
                 0
             ],
             "moveSpeed": 5.0,
@@ -302,201 +2024,32 @@
         {
             "symbolPrefabIndices": [
                 0,
-                5,
-                7,
-                3,
-                6,
                 1,
-                4
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                6,
-                7,
-                3,
-                0,
-                4,
-                5,
-                1
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                5,
-                6,
-                4,
-                1,
-                7,
-                0,
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1,
-                2,
-                6,
-                5,
-                0,
-                7,
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1,
-                0,
-                7,
                 2,
                 3,
-                6,
-                5
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0,
-                3,
-                1,
-                2,
-                7,
-                6,
-                5
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
                 4,
-                3,
-                1,
-                7,
                 5,
-                0,
-                2,
-                6
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                7,
-                5,
-                4,
                 6,
-                1,
-                2,
-                0,
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                2,
-                1,
-                7,
-                4,
-                3,
-                0,
-                6,
-                5
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                6,
-                1,
-                4,
-                7,
-                0,
-                2,
-                3,
-                5
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1,
-                4,
-                0,
-                7,
-                5,
-                2,
-                6,
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                4,
-                3,
-                1,
-                2,
-                0,
-                7,
-                5,
-                6
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                5,
-                1,
-                4,
-                3,
-                6,
-                2,
-                0,
                 7
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                7,
-                6,
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
                 4,
                 5,
-                1,
-                0,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                7,
                 3,
+                0,
+                4,
+                6,
+                5,
+                1,
                 2
             ],
             "moveSpeed": 5.0,
@@ -505,12 +2058,242 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                6,
+                1,
+                4,
+                0,
+                3,
+                7,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                6,
                 4,
                 1,
-                0,
+                3,
+                5,
                 7,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                5,
+                0,
                 2,
                 6,
+                7,
+                1,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                2,
+                0,
+                7,
+                3,
+                6,
+                1,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                0,
+                2,
+                4,
+                7,
+                1,
+                6,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                3,
+                0,
+                4,
+                6,
+                2,
+                7,
+                1,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                6,
+                7,
+                0,
+                2,
+                1,
                 5,
                 3
             ],
@@ -520,12 +2303,452 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                7,
+                0,
+                3,
+                1,
+                4,
+                6,
+                2,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
                 2,
                 4,
+                3,
                 7,
                 0,
                 5,
                 1,
+                6
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                0,
+                6,
+                4,
+                3,
+                2,
+                1,
+                7
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                3,
+                6,
+                7,
+                2,
+                0,
+                4,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                1,
+                5,
+                3,
+                6,
+                4,
+                7,
+                2,
+                0
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                0,
+                2,
+                6,
+                1,
+                3,
+                7,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                7,
+                5,
+                3,
+                4,
+                0,
+                2,
+                1,
+                6
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                1,
+                6,
+                7,
+                0,
+                3,
+                4,
+                2
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                2,
+                3,
+                4,
+                6,
+                0,
+                1,
+                7,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                3,
+                0,
+                1,
+                2,
+                5,
+                7,
+                6
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                3,
+                0,
+                7,
+                2,
+                6,
+                1,
+                4,
+                5
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                6,
+                4,
+                5,
+                0,
+                2,
+                1,
+                3,
+                7
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                7,
+                4,
+                2,
+                5,
+                1,
+                0,
                 3,
                 6
             ],
@@ -535,111 +2758,34 @@
         },
         {
             "symbolPrefabIndices": [
-                6
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                6
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
                 7
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                3
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                1,
+                7,
+                2,
+                6,
+                4,
+                5,
+                3,
+                0
             ],
             "moveSpeed": 5.0,
             "stopDuration": 0.5,
@@ -647,6 +2793,33 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                2,
+                7,
+                3,
+                6,
+                1,
+                4,
                 5
             ],
             "moveSpeed": 5.0,
@@ -655,22 +2828,33 @@
         },
         {
             "symbolPrefabIndices": [
-                1
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                1
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
+            "sequenceIndices": [
+                1,
+                0,
+                2,
+                6,
+                3,
+                4,
+                7,
                 5
             ],
             "moveSpeed": 5.0,
@@ -679,118 +2863,68 @@
         },
         {
             "symbolPrefabIndices": [
-                5
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                2
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                2
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
                 7
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                2
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                6
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                6
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                0
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                4
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                3
-            ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
                 7
             ],
+            "sequenceIndices": [
+                5,
+                7,
+                3,
+                1,
+                2,
+                4,
+                6,
+                0
+            ],
             "moveSpeed": 5.0,
             "stopDuration": 0.5,
             "hitWindow": 0.30000001192092898
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                7,
+                6,
+                5,
+                0,
+                2,
+                3,
+                4,
                 1
             ],
             "moveSpeed": 5.0,
@@ -799,14 +2933,33 @@
         },
         {
             "symbolPrefabIndices": [
-                4
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                5,
+                6,
+                2,
+                3,
+                1,
+                4,
                 7
             ],
             "moveSpeed": 5.0,
@@ -815,22 +2968,33 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
                 7
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
-                3
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
             ],
-            "moveSpeed": 5.0,
-            "stopDuration": 0.5,
-            "hitWindow": 0.30000001192092898
-        },
-        {
-            "symbolPrefabIndices": [
+            "sequenceIndices": [
+                3,
+                0,
+                5,
+                4,
+                7,
+                2,
+                1,
                 6
             ],
             "moveSpeed": 5.0,
@@ -839,6 +3003,33 @@
         },
         {
             "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                2,
+                6,
+                7,
+                4,
+                5,
+                3,
+                1,
                 0
             ],
             "moveSpeed": 5.0,
@@ -847,7 +3038,244 @@
         },
         {
             "symbolPrefabIndices": [
-                4
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                0,
+                4,
+                3,
+                2,
+                7,
+                6,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                3,
+                2,
+                0,
+                5,
+                1,
+                6,
+                4,
+                7
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                5,
+                2,
+                4,
+                1,
+                0,
+                7,
+                6,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                5,
+                7,
+                1,
+                2,
+                6,
+                0,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                6,
+                0,
+                2,
+                4,
+                7,
+                5,
+                3,
+                1
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                4,
+                7,
+                5,
+                6,
+                1,
+                2,
+                0,
+                3
+            ],
+            "moveSpeed": 5.0,
+            "stopDuration": 0.5,
+            "hitWindow": 0.30000001192092898
+        },
+        {
+            "symbolPrefabIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "spawnPointIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "sequenceIndices": [
+                0,
+                7,
+                2,
+                5,
+                3,
+                1,
+                4,
+                6
             ],
             "moveSpeed": 5.0,
             "stopDuration": 0.5,

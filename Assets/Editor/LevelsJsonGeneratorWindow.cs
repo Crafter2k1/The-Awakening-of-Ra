@@ -5,7 +5,6 @@ using System.IO;
 using Core.GamePlay.Levels;
 using UnityEditor;
 using UnityEngine;
-// LevelData, LevelsFile
 
 namespace Editor
 {
@@ -43,7 +42,7 @@ namespace Editor
             EditorGUILayout.LabelField("Генератор levels.json", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            _totalLevels = EditorGUILayout.IntField("Кількість рівнів (мінімум)", _totalLevels);
+            _totalLevels = EditorGUILayout.IntField("Кількість рівнів", _totalLevels);
             _totalLevels = Mathf.Max(1, _totalLevels);
 
             _symbolTypesCount = EditorGUILayout.IntField("Кількість типів символів", _symbolTypesCount);
@@ -57,7 +56,6 @@ namespace Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Правила: з якого по який рівень — скільки символів", EditorStyles.boldLabel);
 
-            // малюємо список правил
             if (_rules == null)
                 _rules = new List<RangeRule>();
 
@@ -68,13 +66,15 @@ namespace Editor
                 var r = _rules[i];
                 EditorGUILayout.BeginVertical("box");
                 EditorGUILayout.LabelField($"Правило {i + 1}", EditorStyles.miniBoldLabel);
-                r.fromLevel = EditorGUILayout.IntField("З рівня (включно)", r.fromLevel);
-                r.toLevel   = EditorGUILayout.IntField("По рівень (включно)", r.toLevel);
-                r.symbolsCount = EditorGUILayout.IntField("Кількість символів", r.symbolsCount);
+                r.fromLevel     = EditorGUILayout.IntField("З рівня (включно)", r.fromLevel);
+                r.toLevel       = EditorGUILayout.IntField("По рівень (включно)", r.toLevel);
+                r.symbolsCount  = EditorGUILayout.IntField("Кількість символів", r.symbolsCount);
 
                 r.fromLevel    = Mathf.Max(1, r.fromLevel);
                 r.toLevel      = Mathf.Max(r.fromLevel, r.toLevel);
                 r.symbolsCount = Mathf.Max(1, r.symbolsCount);
+
+                _rules[i] = r;
 
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
@@ -112,6 +112,12 @@ namespace Editor
 
         private void GenerateJson()
         {
+            if (_totalLevels <= 0)
+            {
+                Debug.LogError("[LevelsJsonGenerator] totalLevels <= 0");
+                return;
+            }
+
             if (_symbolTypesCount <= 0)
             {
                 Debug.LogError("[LevelsJsonGenerator] symbolTypesCount <= 0");
@@ -124,9 +130,8 @@ namespace Editor
                 return;
             }
 
-            // нормалізуємо шлях
             string fullPath = _outputPath;
-            if (!fullPath.StartsWith("Assets"))
+            if (!fullPath.StartsWith("Assets", StringComparison.OrdinalIgnoreCase))
             {
                 fullPath = "Assets/" + fullPath.TrimStart('/');
             }
@@ -137,29 +142,14 @@ namespace Editor
                 Directory.CreateDirectory(directory);
             }
 
-            // рахуємо фактичну кількість рівнів:
-            // мінімум _totalLevels, але не менше за максимальний toLevel з правил
-            int maxLevelFromRules = 0;
-            if (_rules != null)
-            {
-                for (int i = 0; i < _rules.Count; i++)
-                {
-                    if (_rules[i].toLevel > maxLevelFromRules)
-                        maxLevelFromRules = _rules[i].toLevel;
-                }
-            }
-
-            int levelsCount = Mathf.Max(_totalLevels, maxLevelFromRules);
-            if (levelsCount <= 0) levelsCount = 1;
-
             var levelsFile = new LevelsFile
             {
-                levels = new LevelData[levelsCount]
+                levels = new LevelData[_totalLevels]
             };
 
-            for (int levelIndex = 0; levelIndex < levelsCount; levelIndex++)
+            for (int levelIndex = 0; levelIndex < _totalLevels; levelIndex++)
             {
-                int levelNumber = levelIndex + 1; // для людини — рівні з 1
+                int levelNumber = levelIndex + 1;
 
                 int symbolsCount = GetSymbolsCountForLevel(levelNumber);
                 if (symbolsCount <= 0)
@@ -168,34 +158,32 @@ namespace Editor
                 var levelData = new LevelData
                 {
                     symbolPrefabIndices = new int[symbolsCount],
-                    // базові параметри складності (поки що константи)
+                    spawnPointIndices   = new int[symbolsCount],
+                    sequenceIndices     = new int[symbolsCount],
                     moveSpeed    = 5f,
                     stopDuration = 0.5f,
                     hitWindow    = 0.3f
                 };
 
-                // -------- РАНДОМІЗОВАНИЙ ПОРЯДОК СИМВОЛІВ --------
-
-                // 1) створюємо пул доступних індексів 0.._symbolTypesCount-1
-                var indicesPool = new List<int>(_symbolTypesCount);
-                for (int i = 0; i < _symbolTypesCount; i++)
-                    indicesPool.Add(i);
-
-                // 2) перемішуємо пул (Fisher–Yates)
-                for (int i = indicesPool.Count - 1; i > 0; i--)
-                {
-                    int j = UnityEngine.Random.Range(0, i + 1);
-                    (indicesPool[i], indicesPool[j]) = (indicesPool[j], indicesPool[i]);
-                }
-
-                // 3) заповнюємо символи для рівня, циклічно по перемішаному пулу
+                // типи символів — циклічно
                 for (int i = 0; i < symbolsCount; i++)
                 {
-                    int poolIndex = i % indicesPool.Count;
-                    levelData.symbolPrefabIndices[i] = indicesPool[poolIndex];
+                    levelData.symbolPrefabIndices[i] = i % _symbolTypesCount;
                 }
 
-                // -------------------------------------------
+                // spawnPointIndices — поки що по порядку (0..N-1)
+                for (int i = 0; i < symbolsCount; i++)
+                {
+                    levelData.spawnPointIndices[i] = i;
+                }
+
+                // sequenceIndices — 0..N-1, потім перемішуємо
+                for (int i = 0; i < symbolsCount; i++)
+                {
+                    levelData.sequenceIndices[i] = i;
+                }
+
+                ShuffleArray(levelData.sequenceIndices);
 
                 levelsFile.levels[levelIndex] = levelData;
             }
@@ -204,23 +192,26 @@ namespace Editor
             File.WriteAllText(fullPath, json);
             AssetDatabase.Refresh();
 
-            Debug.Log($"[LevelsJsonGenerator] JSON з рівнями згенерований: {fullPath} (levelsCount={levelsCount})");
+            Debug.Log($"[LevelsJsonGenerator] JSON з рівнями згенерований: {fullPath}");
         }
 
         private int GetSymbolsCountForLevel(int levelNumber)
         {
-            // шукаємо перше правило, яке підходить по діапазону
-            if (_rules != null)
+            foreach (var rule in _rules)
             {
-                foreach (var rule in _rules)
-                {
-                    if (levelNumber >= rule.fromLevel && levelNumber <= rule.toLevel)
-                        return rule.symbolsCount;
-                }
+                if (levelNumber >= rule.fromLevel && levelNumber <= rule.toLevel)
+                    return rule.symbolsCount;
             }
-
-            // якщо нічого не підходить — 1 символ за замовчуванням
             return 1;
+        }
+
+        private void ShuffleArray(int[] array)
+        {
+            for (int i = array.Length - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (array[i], array[j]) = (array[j], array[i]);
+            }
         }
     }
 }

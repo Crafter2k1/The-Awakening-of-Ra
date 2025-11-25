@@ -117,7 +117,6 @@ namespace Core.GamePlay
 
         void SetupLevel()
         {
-            // видалити старі символи, якщо були
             foreach (var s in _spawnedSymbols)
             {
                 if (s != null)
@@ -132,12 +131,15 @@ namespace Core.GamePlay
                 return;
             }
 
-            int count = Mathf.Min(_currentLevel.symbolPrefabIndices.Length, spawnPoints.Length);
+            bool hasSpawnMap = _currentLevel.spawnPointIndices != null &&
+                               _currentLevel.spawnPointIndices.Length > 0;
 
-            // 🔹 список вільних індексів спавн-поінтів
-            List<int> freeSpawnIndices = new List<int>(spawnPoints.Length);
-            for (int i = 0; i < spawnPoints.Length; i++)
-                freeSpawnIndices.Add(i);
+            if (!hasSpawnMap)
+            {
+                Debug.LogWarning($"Level {currentLevelIndex}: no spawnPointIndices in JSON, using default [0..N-1].");
+            }
+
+            int count = Mathf.Min(_currentLevel.symbolPrefabIndices.Length, spawnPoints.Length);
 
             for (int i = 0; i < count; i++)
             {
@@ -149,16 +151,31 @@ namespace Core.GamePlay
                     continue;
                 }
 
-                // 🔹 обираємо випадковий spawnPoint із вільних
-                if (freeSpawnIndices.Count == 0)
+                int spawnIndex;
+                if (hasSpawnMap)
                 {
-                    Debug.LogWarning("Not enough spawnPoints for all symbols.");
-                    break;
+                    if (i >= _currentLevel.spawnPointIndices.Length)
+                    {
+                        Debug.LogWarning(
+                            $"Level {currentLevelIndex}: spawnPointIndices shorter than symbolPrefabIndices. Using index=i fallback.");
+                        spawnIndex = i;
+                    }
+                    else
+                    {
+                        spawnIndex = _currentLevel.spawnPointIndices[i];
+                    }
+                }
+                else
+                {
+                    spawnIndex = i;
                 }
 
-                int randomListIndex = Random.Range(0, freeSpawnIndices.Count);
-                int spawnIndex = freeSpawnIndices[randomListIndex];
-                freeSpawnIndices.RemoveAt(randomListIndex);
+                if (spawnIndex < 0 || spawnIndex >= spawnPoints.Length)
+                {
+                    Debug.LogError(
+                        $"Level {currentLevelIndex}: invalid spawnPoint index {spawnIndex}. Skipping symbol {i}.");
+                    continue;
+                }
 
                 SymbolNode prefab = symbolPrefabs[prefabIndex];
                 Transform point = spawnPoints[spawnIndex];
@@ -177,11 +194,44 @@ namespace Core.GamePlay
             _isPaused = false;
             Time.timeScale = 1f;
 
-            // послідовність: усі символи по порядку в _spawnedSymbols
+            // 👇 ПОРЯДОК ПІДКАЗКИ БЕРЕМО З JSON
+            BuildSequence();
+        }
+        void BuildSequence()
+        {
+            // Є sequenceIndices в JSON?
+            if (_currentLevel.sequenceIndices != null && _currentLevel.sequenceIndices.Length > 0)
+            {
+                List<int> valid = new List<int>();
+                for (int i = 0; i < _currentLevel.sequenceIndices.Length; i++)
+                {
+                    int idx = _currentLevel.sequenceIndices[i];
+                    if (idx < 0 || idx >= _spawnedSymbols.Count)
+                    {
+                        Debug.LogWarning(
+                            $"Level {currentLevelIndex}: sequence index {idx} out of range (0..{_spawnedSymbols.Count - 1}), skipping.");
+                        continue;
+                    }
+                    valid.Add(idx);
+                }
+
+                if (valid.Count > 0)
+                {
+                    _sequence = valid.ToArray();
+                    return;
+                }
+
+                Debug.LogWarning($"Level {currentLevelIndex}: sequenceIndices invalid/empty after filtering, using default 0..N-1.");
+            }
+
+            // fallback: просто 0..N-1
             _sequence = new int[_spawnedSymbols.Count];
             for (int i = 0; i < _sequence.Length; i++)
                 _sequence[i] = i;
         }
+
+
+
 
         /// <summary>
         /// Запускаємо ФАЗУ ПОКАЗУ: промінь ходить по символах у порядку _sequence.

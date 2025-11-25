@@ -271,13 +271,18 @@ namespace Core.GamePlay
                 return;
             }
 
-            if (currentLevelIndex < 0 || currentLevelIndex >= _levelsFile.levels.Length)
-                currentLevelIndex = 0;
+            // 🔹 беремо індекс рівня із GameSession
+            int savedIndex = GameSession.CurrentLevelIndex;
 
+            if (savedIndex < 0 || savedIndex >= _levelsFile.levels.Length)
+                savedIndex = 0;
+
+            currentLevelIndex = savedIndex;
             _currentLevel = _levelsFile.levels[currentLevelIndex];
 
+            // 🔹 в UI показуємо human-friendly номер (1,2,3...)
             if (gameplayHud != null)
-                gameplayHud.SetLevel(currentLevelIndex);
+                gameplayHud.SetLevel(currentLevelIndex + 1);
 
             SetupLevel();
             StartShowSequence();
@@ -291,6 +296,7 @@ namespace Core.GamePlay
                 if (s != null)
                     Destroy(s.gameObject);
             }
+
             _spawnedSymbols.Clear();
 
             if (_currentLevel.symbolPrefabIndices == null || _currentLevel.symbolPrefabIndices.Length == 0)
@@ -299,8 +305,16 @@ namespace Core.GamePlay
                 return;
             }
 
+            bool hasSpawnMap = _currentLevel.spawnPointIndices != null &&
+                               _currentLevel.spawnPointIndices.Length > 0;
+
+            if (!hasSpawnMap)
+            {
+                Debug.LogWarning($"Level {currentLevelIndex}: no spawnPointIndices in JSON, using default [0..N-1].");
+            }
+
+            // скільки реально можемо заспавнити
             int count = Mathf.Min(_currentLevel.symbolPrefabIndices.Length, spawnPoints.Length);
-            Transform[] beamPoints = new Transform[count];
 
             for (int i = 0; i < count; i++)
             {
@@ -312,15 +326,42 @@ namespace Core.GamePlay
                     continue;
                 }
 
+                // 👇 або беремо з JSON, або fallback: i
+                int spawnIndex;
+
+                if (hasSpawnMap)
+                {
+                    if (i >= _currentLevel.spawnPointIndices.Length)
+                    {
+                        Debug.LogWarning(
+                            $"Level {currentLevelIndex}: spawnPointIndices shorter than symbolPrefabIndices. Using index=i fallback.");
+                        spawnIndex = i;
+                    }
+                    else
+                    {
+                        spawnIndex = _currentLevel.spawnPointIndices[i];
+                    }
+                }
+                else
+                {
+                    spawnIndex = i;
+                }
+
+                if (spawnIndex < 0 || spawnIndex >= spawnPoints.Length)
+                {
+                    Debug.LogError(
+                        $"Level {currentLevelIndex}: invalid spawnPoint index {spawnIndex}. Skipping symbol {i}.");
+                    continue;
+                }
+
                 SymbolNode prefab = symbolPrefabs[prefabIndex];
-                Transform point = spawnPoints[i];
+                Transform point = spawnPoints[spawnIndex];
 
                 SymbolNode instance = Instantiate(prefab, point.position, Quaternion.identity);
                 instance.SetIdle();
                 instance.SetHighlighted(false);
 
                 _spawnedSymbols.Add(instance);
-                beamPoints[i] = instance.transform;
             }
 
             _lastHighlightedIndex = -1;
@@ -330,11 +371,12 @@ namespace Core.GamePlay
             _isPaused = false;
             Time.timeScale = 1f;
 
-            // послідовність поки що: усі символи по порядку
+            // послідовність: просто всі заспавнені символи по порядку
             _sequence = new int[_spawnedSymbols.Count];
             for (int i = 0; i < _sequence.Length; i++)
                 _sequence[i] = i;
         }
+
 
         /// <summary>
         /// Запускаємо ФАЗУ ПОКАЗУ: промінь ходить по символах у порядку _sequence.
@@ -505,6 +547,17 @@ namespace Core.GamePlay
             _isInputPhase = false;
 
             Debug.Log($"LEVEL COMPLETE! Level index = {currentLevelIndex}");
+
+            // 🔹 ЗБЕРІГАЄМО ПРОГРЕС: розблокувати наступний рівень, якщо він існує
+            int nextIndex = currentLevelIndex + 1;
+            if (_levelsFile != null && _levelsFile.levels != null && nextIndex < _levelsFile.levels.Length)
+            {
+                // збережемо "найвищий досягнутий" рівень,
+                // але не зменшуємо, якщо вже дійшли далі раніше
+                if (nextIndex > GameSession.CurrentLevelIndex)
+                    GameSession.CurrentLevelIndex = nextIndex;
+            }
+
             EventBus.Invoke(new GameEvents.LevelCompleted());
         }
 
@@ -555,7 +608,7 @@ namespace Core.GamePlay
                 _currentLevel = _levelsFile.levels[currentLevelIndex];
 
                 if (gameplayHud != null)
-                    gameplayHud.SetLevel(currentLevelIndex);
+                    gameplayHud.SetLevel(currentLevelIndex + 1);
 
                 SetupLevel();
                 StartShowSequence();
@@ -578,12 +631,32 @@ namespace Core.GamePlay
 
 
 ========== FILE: GameSession.cs ==========
+using UnityEngine;
+
 namespace Core.GamePlay
 {
     public static class GameSession
     {
-        public static int CurrentLevelIndex { get; set; } = 0;
-        
+        private const string LevelIndexKey = "progress.level_index";
+
+        /// <summary>
+        /// Поточний (останній досягнутий / розблокований) рівень, 0-based.
+        /// Зберігається в PlayerPrefs.
+        /// </summary>
+        public static int CurrentLevelIndex
+        {
+            get => PlayerPrefs.GetInt(LevelIndexKey, 0);
+            set
+            {
+                if (value < 0) value = 0;
+                PlayerPrefs.SetInt(LevelIndexKey, value);
+                PlayerPrefs.Save();
+            }
+        }
+
+        /// <summary>
+        /// Якщо хочеш ще зберігати string-id (але поки що не чіпаємо).
+        /// </summary>
         public static string CurrentLevelId { get; set; } = "0";
     }
 }
@@ -1185,8 +1258,12 @@ namespace Core.GamePlay.Levels
     [Serializable]
     public class LevelData
     {
-        // Які символи спавнити по порядку (індекси в масиві symbolPrefabs)
+        // Які символи спавнити (індекси в масиві symbolPrefabs)
         public int[] symbolPrefabIndices;
+
+        // 👇 НОВЕ: в який spawnPoint ставити кожен символ
+        // індекс тут — це індекс у масиві spawnPoints з GameManager
+        public int[] spawnPointIndices;
 
         // Параметри складності для цього рівня
         public float moveSpeed = 5f;
