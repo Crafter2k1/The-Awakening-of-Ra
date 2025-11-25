@@ -98,13 +98,18 @@ namespace Core.GamePlay
                 return;
             }
 
-            if (currentLevelIndex < 0 || currentLevelIndex >= _levelsFile.levels.Length)
-                currentLevelIndex = 0;
+            // 🔹 беремо індекс рівня із GameSession
+            int savedIndex = GameSession.CurrentLevelIndex;
 
+            if (savedIndex < 0 || savedIndex >= _levelsFile.levels.Length)
+                savedIndex = 0;
+
+            currentLevelIndex = savedIndex;
             _currentLevel = _levelsFile.levels[currentLevelIndex];
 
+            // 🔹 в UI показуємо human-friendly номер (1,2,3...)
             if (gameplayHud != null)
-                gameplayHud.SetLevel(currentLevelIndex);
+                gameplayHud.SetLevel(currentLevelIndex + 1);
 
             SetupLevel();
             StartShowSequence();
@@ -118,6 +123,7 @@ namespace Core.GamePlay
                 if (s != null)
                     Destroy(s.gameObject);
             }
+
             _spawnedSymbols.Clear();
 
             if (_currentLevel.symbolPrefabIndices == null || _currentLevel.symbolPrefabIndices.Length == 0)
@@ -127,7 +133,11 @@ namespace Core.GamePlay
             }
 
             int count = Mathf.Min(_currentLevel.symbolPrefabIndices.Length, spawnPoints.Length);
-            Transform[] beamPoints = new Transform[count];
+
+            // 🔹 список вільних індексів спавн-поінтів
+            List<int> freeSpawnIndices = new List<int>(spawnPoints.Length);
+            for (int i = 0; i < spawnPoints.Length; i++)
+                freeSpawnIndices.Add(i);
 
             for (int i = 0; i < count; i++)
             {
@@ -139,15 +149,25 @@ namespace Core.GamePlay
                     continue;
                 }
 
+                // 🔹 обираємо випадковий spawnPoint із вільних
+                if (freeSpawnIndices.Count == 0)
+                {
+                    Debug.LogWarning("Not enough spawnPoints for all symbols.");
+                    break;
+                }
+
+                int randomListIndex = Random.Range(0, freeSpawnIndices.Count);
+                int spawnIndex = freeSpawnIndices[randomListIndex];
+                freeSpawnIndices.RemoveAt(randomListIndex);
+
                 SymbolNode prefab = symbolPrefabs[prefabIndex];
-                Transform point = spawnPoints[i];
+                Transform point = spawnPoints[spawnIndex];
 
                 SymbolNode instance = Instantiate(prefab, point.position, Quaternion.identity);
                 instance.SetIdle();
                 instance.SetHighlighted(false);
 
                 _spawnedSymbols.Add(instance);
-                beamPoints[i] = instance.transform;
             }
 
             _lastHighlightedIndex = -1;
@@ -157,7 +177,7 @@ namespace Core.GamePlay
             _isPaused = false;
             Time.timeScale = 1f;
 
-            // послідовність поки що: усі символи по порядку
+            // послідовність: усі символи по порядку в _spawnedSymbols
             _sequence = new int[_spawnedSymbols.Count];
             for (int i = 0; i < _sequence.Length; i++)
                 _sequence[i] = i;
@@ -332,6 +352,17 @@ namespace Core.GamePlay
             _isInputPhase = false;
 
             Debug.Log($"LEVEL COMPLETE! Level index = {currentLevelIndex}");
+
+            // 🔹 ЗБЕРІГАЄМО ПРОГРЕС: розблокувати наступний рівень, якщо він існує
+            int nextIndex = currentLevelIndex + 1;
+            if (_levelsFile != null && _levelsFile.levels != null && nextIndex < _levelsFile.levels.Length)
+            {
+                // збережемо "найвищий досягнутий" рівень,
+                // але не зменшуємо, якщо вже дійшли далі раніше
+                if (nextIndex > GameSession.CurrentLevelIndex)
+                    GameSession.CurrentLevelIndex = nextIndex;
+            }
+
             EventBus.Invoke(new GameEvents.LevelCompleted());
         }
 
@@ -382,7 +413,7 @@ namespace Core.GamePlay
                 _currentLevel = _levelsFile.levels[currentLevelIndex];
 
                 if (gameplayHud != null)
-                    gameplayHud.SetLevel(currentLevelIndex);
+                    gameplayHud.SetLevel(currentLevelIndex + 1);
 
                 SetupLevel();
                 StartShowSequence();
