@@ -9,7 +9,7 @@ PlayerSettings:
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
   defaultScreenOrientation: 4
-  targetDevice: 2
+  targetDevice: 0
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: nicolelaschtowitz
@@ -178,7 +178,7 @@ PlayerSettings:
   aotOptions: 
   stripEngineCode: 1
   iPhoneStrippingLevel: 0
-  iPhoneScriptCallOptimization: 0
+  iPhoneScriptCallOptimization: 1
   ForceInternetPermission: 0
   ForceSDCardPermission: 0
   CreateWallpaper: 0
@@ -822,7 +822,8 @@ PlayerSettings:
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}
-  il2cppCodeGeneration: {}
+  il2cppCodeGeneration:
+    iPhone: 1
   managedStrippingLevel:
     EmbeddedLinux: 1
     GameCoreScarlett: 1
@@ -935,4 +936,4 @@ PlayerSettings:
   hmiLoadingImage: {fileID: 0}
   platformRequiresReadableAssets: 0
   virtualTexturingSupportEnabled: 0
-  insecureHttpOption: 0
+  insecureHttpOption: 2
