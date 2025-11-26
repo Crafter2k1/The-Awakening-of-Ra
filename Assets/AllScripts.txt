@@ -290,7 +290,6 @@ namespace Core.GamePlay
 
         void SetupLevel()
         {
-            // видалити старі символи, якщо були
             foreach (var s in _spawnedSymbols)
             {
                 if (s != null)
@@ -313,7 +312,6 @@ namespace Core.GamePlay
                 Debug.LogWarning($"Level {currentLevelIndex}: no spawnPointIndices in JSON, using default [0..N-1].");
             }
 
-            // скільки реально можемо заспавнити
             int count = Mathf.Min(_currentLevel.symbolPrefabIndices.Length, spawnPoints.Length);
 
             for (int i = 0; i < count; i++)
@@ -326,9 +324,7 @@ namespace Core.GamePlay
                     continue;
                 }
 
-                // 👇 або беремо з JSON, або fallback: i
                 int spawnIndex;
-
                 if (hasSpawnMap)
                 {
                     if (i >= _currentLevel.spawnPointIndices.Length)
@@ -371,11 +367,43 @@ namespace Core.GamePlay
             _isPaused = false;
             Time.timeScale = 1f;
 
-            // послідовність: просто всі заспавнені символи по порядку
+            // 👇 ПОРЯДОК ПІДКАЗКИ БЕРЕМО З JSON
+            BuildSequence();
+        }
+        void BuildSequence()
+        {
+            // Є sequenceIndices в JSON?
+            if (_currentLevel.sequenceIndices != null && _currentLevel.sequenceIndices.Length > 0)
+            {
+                List<int> valid = new List<int>();
+                for (int i = 0; i < _currentLevel.sequenceIndices.Length; i++)
+                {
+                    int idx = _currentLevel.sequenceIndices[i];
+                    if (idx < 0 || idx >= _spawnedSymbols.Count)
+                    {
+                        Debug.LogWarning(
+                            $"Level {currentLevelIndex}: sequence index {idx} out of range (0..{_spawnedSymbols.Count - 1}), skipping.");
+                        continue;
+                    }
+                    valid.Add(idx);
+                }
+
+                if (valid.Count > 0)
+                {
+                    _sequence = valid.ToArray();
+                    return;
+                }
+
+                Debug.LogWarning($"Level {currentLevelIndex}: sequenceIndices invalid/empty after filtering, using default 0..N-1.");
+            }
+
+            // fallback: просто 0..N-1
             _sequence = new int[_spawnedSymbols.Count];
             for (int i = 0; i < _sequence.Length; i++)
                 _sequence[i] = i;
         }
+
+
 
 
         /// <summary>
@@ -1251,6 +1279,7 @@ namespace Menu.UI
 }
 
 ========== FILE: LevelsConfig.cs ==========
+// LevelsConfig.cs
 using System;
 
 namespace Core.GamePlay.Levels
@@ -1261,9 +1290,12 @@ namespace Core.GamePlay.Levels
         // Які символи спавнити (індекси в масиві symbolPrefabs)
         public int[] symbolPrefabIndices;
 
-        // 👇 НОВЕ: в який spawnPoint ставити кожен символ
-        // індекс тут — це індекс у масиві spawnPoints з GameManager
+        // В який spawnPoint ставити кожен символ (індекси в масиві spawnPoints у GameManager)
         public int[] spawnPointIndices;
+
+        // 👇 НОВЕ: у якому порядку промінь буде їх показувати / гравець має клікати
+        // значення – індекси в списку _spawnedSymbols (0..N-1)
+        public int[] sequenceIndices;
 
         // Параметри складності для цього рівня
         public float moveSpeed = 5f;
