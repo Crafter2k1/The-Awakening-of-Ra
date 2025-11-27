@@ -163,6 +163,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
+    Android: com.nicolelaschtowitz.TheAwakeningofRa
     Standalone: com.DefaultCompany.2DProject
     iPhone: com.nicolelaschtowitz.The-Awakening-of-Ra-
   buildNumber:
