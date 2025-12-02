@@ -15,12 +15,7 @@ namespace Menu.UI.Popups
         // Стан початкової видимості задаєш у префабі/сцені.
         protected virtual void Awake()
         {
-            Debug.Log($"[Popup] Awake {name} (content.activeSelf={content?.gameObject.activeSelf}, alpha={canvasGroup?.alpha})", this);
-
-            if (!canvasGroup)
-                Debug.LogWarning($"[Popup] {name} CanvasGroup НЕ заданий", this);
-            if (!content)
-                Debug.LogWarning($"[Popup] {name} Content НЕ заданий", this);
+            
         }
 
         protected virtual void OnDisable()
@@ -53,7 +48,6 @@ namespace Menu.UI.Popups
 
         public virtual void HideView()
         {
-            Debug.Log($"[Popup] HideView {name}", this);
 
             if (_fadeTween != null && _fadeTween.IsActive())
                 _fadeTween.Kill();

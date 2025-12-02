@@ -77,6 +77,202 @@ namespace Core.Audio
 }
 
 
+========== FILE: BackgroundMusic.cs ==========
+using System;
+using Core.EventBusSystem;
+using Core.SceneManagement;
+using UnityEngine;
+using UnityEngine.Audio;
+
+namespace Core.Audio
+{
+    [RequireComponent(typeof(AudioSource))]
+    public sealed class BackgroundMusic : MonoBehaviour
+    {
+        public static BackgroundMusic Instance { get; private set; }
+
+        [Header("Mixer")]
+        [SerializeField] private AudioMixerGroup musicMixerGroup;
+
+        [Header("Music per scene")]
+        [SerializeField] private SceneMusic[] sceneTracks;
+
+        [Serializable]
+        private struct SceneMusic
+        {
+            public string sceneName;   // "MainMenuScene", "GameScene" і т.д.
+            public AudioClip clip;
+        }
+
+        private AudioSource _source;
+        private string _currentScene;
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            _source = GetComponent<AudioSource>();
+            _source.loop = true;
+            _source.playOnAwake = false;
+
+            if (musicMixerGroup)
+                _source.outputAudioMixerGroup = musicMixerGroup;
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<SceneLoaded>(OnSceneLoaded);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<SceneLoaded>(OnSceneLoaded);
+        }
+
+        private void OnSceneLoaded(SceneLoaded e)
+        {
+            PlayForScene(e.Name);
+        }
+
+        private void PlayForScene(string sceneName)
+        {
+            if (_currentScene == sceneName)
+                return;
+
+            var clip = FindClipForScene(sceneName);
+            if (clip == null)
+                return;
+
+            _currentScene = sceneName;
+            _source.clip = clip;
+            _source.Play();
+        }
+
+        private AudioClip FindClipForScene(string sceneName)
+        {
+            for (int i = 0; i < sceneTracks.Length; i++)
+            {
+                if (sceneTracks[i].sceneName == sceneName)
+                    return sceneTracks[i].clip;
+            }
+
+            return null;
+        }
+    }
+}
+
+
+========== FILE: SfxPlayer.cs ==========
+// Assets/Scripts/Core/Audio/SfxPlayer.cs
+using UnityEngine;
+
+namespace Core.Audio
+{
+    [DefaultExecutionOrder(-110)]
+    public sealed class SfxPlayer : MonoBehaviour
+    {
+        public static SfxPlayer Instance { get; private set; }
+
+        [SerializeField] private AudioSource audioSource;
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            if (!audioSource)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
+
+            // важливо: вистави тут Output на SFX групу в AudioMixer через інспектор
+        }
+
+        public void PlayOneShot(AudioClip clip)
+        {
+            if (!clip || audioSource == null) return;
+            audioSource.PlayOneShot(clip);
+        }
+    }
+}
+
+========== FILE: UiClickSfxListener.cs ==========
+// Assets/Scripts/Core/Audio/UiClickSfxListener.cs
+
+using Core.EventBusSystem;
+using Core.GamePlay;
+using Menu.UI;
+using UnityEngine;
+
+namespace Core.Audio
+{
+    public sealed class UiClickSfxListener : MonoBehaviour
+    {
+        [Header("SFX")]
+        [SerializeField] private AudioClip clickSfx;
+
+        private void OnEnable()
+        {
+            // ----- MENU -----
+            EventBus.Subscribe<MenuEvents.OpenMainMenu>(OnClick);
+            EventBus.Subscribe<MenuEvents.OpenSettings>(OnClick);
+            EventBus.Subscribe<MenuEvents.OpenLevelSelection>(OnClick);
+            EventBus.Subscribe<MenuEvents.BackRequested>(OnClick);
+            EventBus.Subscribe<MenuEvents.StartGameRequested>(OnClick);
+            EventBus.Subscribe<MenuEvents.QuitRequested>(OnClick);
+            EventBus.Subscribe<MenuEvents.LevelChosen>(OnClick);
+
+            // ----- GAME -----
+            EventBus.Subscribe<GameEvents.PauseRequested>(OnClick);
+            EventBus.Subscribe<GameEvents.ResumeRequested>(OnClick);
+            EventBus.Subscribe<GameEvents.RestartRequested>(OnClick);
+            EventBus.Subscribe<GameEvents.NextLevelRequested>(OnClick);
+            EventBus.Subscribe<GameEvents.GoToMenuRequested>(OnClick);
+        }
+
+        private void OnDisable()
+        {
+            // ----- MENU -----
+            EventBus.Unsubscribe<MenuEvents.OpenMainMenu>(OnClick);
+            EventBus.Unsubscribe<MenuEvents.OpenSettings>(OnClick);
+            EventBus.Unsubscribe<MenuEvents.OpenLevelSelection>(OnClick);
+            EventBus.Unsubscribe<MenuEvents.BackRequested>(OnClick);
+            EventBus.Unsubscribe<MenuEvents.StartGameRequested>(OnClick);
+            EventBus.Unsubscribe<MenuEvents.QuitRequested>(OnClick);
+            EventBus.Unsubscribe<MenuEvents.LevelChosen>(OnClick);
+
+            // ----- GAME -----
+            EventBus.Unsubscribe<GameEvents.PauseRequested>(OnClick);
+            EventBus.Unsubscribe<GameEvents.ResumeRequested>(OnClick);
+            EventBus.Unsubscribe<GameEvents.RestartRequested>(OnClick);
+            EventBus.Unsubscribe<GameEvents.NextLevelRequested>(OnClick);
+            EventBus.Unsubscribe<GameEvents.GoToMenuRequested>(OnClick);
+        }
+
+        // Один універсальний хендлер під будь-який тип події
+        private void OnClick<T>(T _)
+        {
+            if (!clickSfx) return;
+            if (SfxPlayer.Instance != null)
+                SfxPlayer.Instance.PlayOneShot(clickSfx);
+        }
+    }
+}
+
+
 ========== FILE: EventBus.cs ==========
 using System;
 using System.Collections.Generic;
@@ -1657,12 +1853,7 @@ namespace Menu.UI.Popups
         // Стан початкової видимості задаєш у префабі/сцені.
         protected virtual void Awake()
         {
-            Debug.Log($"[Popup] Awake {name} (content.activeSelf={content?.gameObject.activeSelf}, alpha={canvasGroup?.alpha})", this);
-
-            if (!canvasGroup)
-                Debug.LogWarning($"[Popup] {name} CanvasGroup НЕ заданий", this);
-            if (!content)
-                Debug.LogWarning($"[Popup] {name} Content НЕ заданий", this);
+            
         }
 
         protected virtual void OnDisable()
@@ -1695,7 +1886,6 @@ namespace Menu.UI.Popups
 
         public virtual void HideView()
         {
-            Debug.Log($"[Popup] HideView {name}", this);
 
             if (_fadeTween != null && _fadeTween.IsActive())
                 _fadeTween.Kill();
